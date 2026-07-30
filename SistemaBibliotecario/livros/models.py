@@ -32,5 +32,8 @@ class Livros(models.Model):
     quant_total = models.CharField(max_length=10)
     exemp_disponiveis = models.CharField(max_length=10)
 
-    class Meta():
+    class Meta:
         verbose_name = "Livro"
+    
+    def __str__(self):
+        return self.titulo
