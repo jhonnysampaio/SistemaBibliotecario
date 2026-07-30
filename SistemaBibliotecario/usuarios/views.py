@@ -1,27 +1,59 @@
 from django.http.response import HttpResponse
-from django.shortcuts import render
-from django.contrib.auth.models import User
-from django.contrib.auth import authenticate
-from django.contrib.auth import login as login_django
-from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect
+from .models import Usuario
+from hashlib import sha256
 
 # Create your views here.
 
+def cadastrar(request):
+    status = request.GET.get("status")
+    return render(request, "cadastro.html", {"status" : status})
+
+def valida_cadastro(request):
+    nome = request.POST.get("nome")
+    email = request.POST.get("email")
+    senha = request.POST.get("senha")
+
+    usuario = Usuario.objects.filter(email = email)
+
+    if len(nome.strip()) == 0 or len(email.strip()) == 0:
+        return redirect("/auth/cadastro/?status=1")
+
+    if len(senha.strip()) < 8:
+        return redirect("/auth/cadastro/?status=2")
+
+    if len(usuario) > 0:
+        return redirect("/auth/cadastro/?status=3")
+
+    try:
+        senha = sha256(senha.encode()).hexdigest()
+        usuario = Usuario(nome = nome, email = email, senha = senha)
+        usuario.save()
+
+        return redirect ("auth/cadastro/?status=0")
+    except:
+        return redirect("/auth/cadastro/?status=4")
+    
 def login(request):
-    if request.method == "GET":
-        return render(request, "login.html")
-    else:
-        username = request.POST.get("username")
-        senha = request.POST.get("senha")
-        user = authenticate(username=username, password=senha)
+    status = request.GET.get("status")
+    return render(request, "login.html", {"status" : status})
 
-        if user:
-            login_django(request, user)
-            return HttpResponse("autenticado")
+def valida_login(request):
+    email = request.POST.get("email")
+    senha = request.POST.get("senha")
+    senha = sha256(senha.encode()).hexdigest()
 
-        else:
-            return HttpResponse("email ou senha inválidos")
+    usuario = Usuario.objects.filter(email = email).filter(senha = senha)
 
-@login_required(login_url="/auth/login/")
-def teste(request):
-    return HttpResponse("teste")
+    if len(usuario) == 0:
+        return redirect("/auth/login/?status=1")
+    elif len(usuario) > 0:
+        request.session["usuario"] = usuario[0].id
+        return redirect("/dashboard")
+    
+    return HttpResponse(f"{email} {senha}")
+
+def sair(request):
+    request.session.flush()
+
+    return redirect("/auth/login/")

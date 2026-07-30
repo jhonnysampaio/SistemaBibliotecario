@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Cadastro</title>
 
     <style>
         *{
@@ -78,34 +78,18 @@
             background:#43a047;
         }
 
-        .cadastro{
+        .login{
             text-align:center;
             margin-top:20px;
         }
 
-        .cadastro a{
+        .login a{
             color:#4CAF50;
             text-decoration:none;
             font-weight:bold;
         }
 
-        .cadastro a:hover{
-            text-decoration:underline;
-        }
-
-        .esqueceu{
-            text-align:right;
-            margin-top:-8px;
-            margin-bottom:18px;
-        }
-
-        .esqueceu a{
-            color:#666;
-            text-decoration:none;
-            font-size:14px;
-        }
-
-        .esqueceu a:hover{
+        .login a:hover{
             text-decoration:underline;
         }
     </style>
@@ -113,45 +97,33 @@
 <body>
 
     <div class="container">
+        
+        <h2>Criar Conta</h2>
 
-        <h2>Entrar</h2>
-
-        <form method="POST" action="{% url 'valida_login' %}">
+        <form method="POST" action="{% url 'valida_cadastro' %}">
             {% csrf_token %}
 
             <div class="campo">
-                <label>Email</label>
-                <input
-                    type="email"
-                    name="email"
-                    placeholder="Digite seu email"
-                    required
-                >
+                <label>Nome</label>
+                <input type="text" name="nome" placeholder="Digite seu nome" required>
+            </div>
+
+            <div class="campo">
+                <label>E-mail</label>
+                <input type="email" name="email" placeholder="Digite seu e-mail" required>
             </div>
 
             <div class="campo">
                 <label>Senha</label>
-                <input
-                    type="password"
-                    name="senha"
-                    placeholder="Digite sua senha"
-                    required
-                >
+                <input type="password" name="senha" placeholder="Digite sua senha" required>
             </div>
 
-            <div class="esqueceu">
-                <a href="#">Esqueceu a senha?</a>
-            </div>
-
-            <button type="submit">
-                Entrar
-            </button>
-
+            <button type="submit">Cadastrar</button>
         </form>
 
-        <div class="cadastro">
-            Não possui uma conta?
-            <a href="{% url 'cadastro' %}">Cadastre-se</a>
+        <div class="login">
+            Já possui uma conta?
+            <a href="{% url 'login' %}">Entrar</a>
         </div>
 
     </div>
