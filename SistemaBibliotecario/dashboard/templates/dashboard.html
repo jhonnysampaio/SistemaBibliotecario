@@ -1,1 +1,33 @@
-<h1>dashboardd</h1>
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biblioteca</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+    <div class="container vh-100 d-flex justify-content-center align-items-center">
+        <div class="card shadow p-5 text-center" style="width: 450px;">
+
+            <h2 class="mb-4">Sistema de Biblioteca</h2>
+
+            <div class="d-grid gap-3">
+                <a href="{% url 'cadastrar_livro' %}" class="btn btn-primary btn-lg">
+                    📚 Cadastrar Livros
+                </a>
+
+                <a href="{% url 'listar_livro' %}" class="btn btn-success btn-lg">
+                    📖 Listar Livros
+                </a> 
+                <a href=""></a>
+            </div>
+
+        </div>
+    </div>
+
+</body>
+</html>

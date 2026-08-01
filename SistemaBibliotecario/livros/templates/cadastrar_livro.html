@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container mt-5">
+
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0">Cadastrar Livro</h3>
+        </div>
+
+        <div class="card-body">
+
+            <form method="POST">
+                {% csrf_token %}
+
+                <div class="row">
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">ISBN</label>
+                        <input type="text" name="isbn" class="form-control">
+                    </div>
+
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Título</label>
+                        <input type="text" name="titulo" class="form-control">
+                    </div>
+
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Subtítulo</label>
+                        <input type="text" name="subtitulo" class="form-control">
+                    </div>
+
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Autor</label>
+                        <input type="text" name="autor" class="form-control">
+                    </div>
+
+
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Data de Cadastro</label>
+                        <input type="date" name="data_cadastro" class="form-control">
+                    </div>
+
+
+                    <div class="col-md-8 mb-3">
+                        <label class="form-label">Editora</label>
+                        <input type="text" name="editora" class="form-control">
+                    </div>
+
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Categoria</label>
+
+                        <select name="categoria" class="form-select">
+
+                            {% for categoria in categorias %}
+                                <option value="{{categoria.id}}">
+                                    {{categoria.nome}}
+                                </option>
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">CDD</label>
+                        <input type="text" name="cdd" class="form-control">
+                    </div>
+
+
+                    <div class="col-md-8 mb-3">
+                        <label class="form-label">Local na Estante</label>
+                        <input type="text" name="local_estante" class="form-control">
+                    </div>
+
+
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Etiqueta</label>
+                        <input type="text" name="etiqueta" class="form-control">
+                    </div>
+
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Quantidade Total</label>
+                        <input type="number" name="quant_total" class="form-control">
+                    </div>
+
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Exemplares Disponíveis</label>
+                        <input type="number" name="exemp_disponiveis" class="form-control">
+                    </div>
+
+                </div>
+
+
+                <button class="btn btn-success">
+                    Cadastrar Livro
+                </button>
+
+                <a href="{% url 'dashboard' %}" class="btn btn-secondary">
+                    Voltar
+                </a>
+
+
+            </form>
+
+        </div>
+    </div>
+
+</div>
+
+
+{% endblock %}
