@@ -31,7 +31,7 @@ class LivroForm(forms.ModelForm):
                 "class" : "form-control"
             }),
             "categoria" : forms.Select(attrs={
-                "class" : "form-control"
+                "class" : "form-select"
             }),
             "cdd" : forms.TextInput(attrs={
                 "class" : "form-control"

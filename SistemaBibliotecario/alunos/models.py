@@ -12,12 +12,16 @@ class Alunos(models.Model):
     cpf
     número de telefone
     """
+    TURNOS = (
+        ("M", "MATUTINO"),
+        ("V", "VESPERTINO")
+    )
 
     matricula = models.CharField(max_length=12)
     nome = models.CharField(max_length=100)
     serie = models.CharField(max_length=10)
     turma = models.CharField(max_length=10)
-    turno = models.CharField(max_length=10)
+    turno = models.CharField(max_length=1, choices=TURNOS)
     cpf = models.CharField(max_length=11)
     telefone = models.CharField(max_length=20)
 
