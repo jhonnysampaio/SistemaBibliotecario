@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container mt-5">
+
+    <div class="card shadow">
+
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0">Cadastrar Empréstimo</h3>
+        </div>
+
+        <div class="card-body">
+
+            <form method="POST">
+                {% csrf_token %}
+
+                <div class="mb-3">
+                    <label class="form-label">Aluno</label>
+                    {{ form.aluno }}
+                </div>
+
+
+                <div class="mb-3">
+                    <label class="form-label">Livro</label>
+                    {{ form.livro }}
+                </div>
+
+
+                <div class="mb-3">
+                    <label class="form-label">Data de início</label>
+                    {{ form.data_inicio }}
+                </div>
+
+
+                <div class="mb-3">
+                    <label class="form-label">Data de término</label>
+                    {{ form.data_termino }}
+                </div>
+
+
+                <button class="btn btn-success">
+                    Salvar Empréstimo
+                </button>
+
+                <a href="{% url 'listar_emprestimo' %}" 
+                   class="btn btn-secondary">
+                    Voltar
+                </a>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
