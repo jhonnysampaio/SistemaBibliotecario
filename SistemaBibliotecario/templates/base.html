@@ -82,7 +82,7 @@
 
                 <li class="nav-item">
 
-                    <a class="nav-link" href="/livros/cadastrar/">
+                    <a class="nav-link" href="{% url 'cadastrar_livro' %}">
                         Cadastrar Livro
                     </a>
 
@@ -91,7 +91,7 @@
 
                 <li class="nav-item">
 
-                    <a class="nav-link" href="/livros/listar/">
+                    <a class="nav-link" href="{% url 'listar_livro' %}">
                         Listar Livros
                     </a>
 
@@ -99,7 +99,7 @@
 
                 <li class="nav-item">
 
-                    <a class="nav-link" href="/alunos/cadastrar/">
+                    <a class="nav-link" href="{% url 'cadastrar_aluno' %}">
                         Cadastrar Aluno
                     </a>
 
@@ -107,8 +107,17 @@
 
                 <li class="nav-item">
 
-                    <a class="nav-link" href="/alunos/listar/">
+                    <a class="nav-link" href="{% url 'listar_aluno' %}">
                         Listar Alunos
+                    </a>
+
+                </li>
+
+                <li>
+
+                    <a href="{% url 'sair' %}"
+                    class="btn btn-danger">
+                        Sair
                     </a>
 
                 </li>
