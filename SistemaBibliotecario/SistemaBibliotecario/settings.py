@@ -121,3 +121,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+# Mantém as chaves primárias automáticas compatíveis com as migrações iniciais.
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
