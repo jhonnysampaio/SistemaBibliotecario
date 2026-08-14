@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Meu perfil
+{% endblock %}
+
+{% block content %}
+    <section class="card form-page-card shadow-sm">
+        <div class="card-body p-4">
+            <header class="mb-4">
+                <h1 class="h3 mb-2">Meu perfil</h1>
+                <p class="text-muted mb-0">
+                    Atualize seus dados pessoais e seu telefone de contato.
+                </p>
+            </header>
+
+            <form method="post" novalidate>
+                {% csrf_token %}
+
+                {% if dados_form.non_field_errors %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ dados_form.non_field_errors }}
+                    </div>
+                {% endif %}
+
+                {% if perfil_form.non_field_errors %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ perfil_form.non_field_errors }}
+                    </div>
+                {% endif %}
+
+                <div class="form-section">
+                    <h2 class="h5 mb-3">Dados do usuário</h2>
+
+                    {% for field in dados_form %}
+                        <div class="form-field">
+                            <label for="{{ field.id_for_label }}">
+                                {{ field.label }}
+                            </label>
+
+                            {{ field }}
+
+                            {% if field.help_text %}
+                                <small class="form-help">
+                                    {{ field.help_text|safe }}
+                                </small>
+                            {% endif %}
+
+                            {{ field.errors }}
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <div class="form-section">
+                    <h2 class="h5 mb-3">Contato</h2>
+
+                    {% for field in perfil_form %}
+                        <div class="form-field">
+                            <label for="{{ field.id_for_label }}">
+                                {{ field.label }}
+                            </label>
+
+                            {{ field }}
+
+                            {% if field.help_text %}
+                                <small class="form-help">
+                                    {{ field.help_text|safe }}
+                                </small>
+                            {% endif %}
+
+                            {{ field.errors }}
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <div class="d-flex flex-wrap gap-2 mt-4">
+                    <button class="btn btn-primary" type="submit">
+                        Salvar alterações
+                    </button>
+
+                    <a
+                        class="btn btn-outline-secondary"
+                        href="{% url 'usuarios:alterar_senha' %}"
+                    >
+                        Alterar senha
+                    </a>
+                </div>
+            </form>
+        </div>
+    </section>
+{% endblock %}

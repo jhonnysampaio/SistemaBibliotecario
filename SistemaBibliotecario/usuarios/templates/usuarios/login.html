@@ -1,0 +1,50 @@
+{% extends "usuarios/auth_base.html" %}
+
+{% block title %}
+    Entrar
+{% endblock %}
+
+{% block auth_content %}
+    <header class="auth-card__header">
+        <h1 class="h3">Bem-vindo de volta</h1>
+        <p class="text-muted mb-0">
+            Acesse a gestão da biblioteca escolar.
+        </p>
+    </header>
+
+    <form method="post" novalidate>
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger" role="alert">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        <div class="form-field">
+            <label for="{{ form.username.id_for_label }}">
+                Usuário
+            </label>
+
+            {{ form.username }}
+            {{ form.username.errors }}
+        </div>
+
+        <div class="form-field">
+            <label for="{{ form.password.id_for_label }}">
+                Senha
+            </label>
+
+            {{ form.password }}
+            {{ form.password.errors }}
+        </div>
+
+        {% if next %}
+            <input type="hidden" name="next" value="{{ next }}">
+        {% endif %}
+
+        <button class="btn btn-primary w-100" type="submit">
+            Entrar
+        </button>
+    </form>
+{% endblock %}

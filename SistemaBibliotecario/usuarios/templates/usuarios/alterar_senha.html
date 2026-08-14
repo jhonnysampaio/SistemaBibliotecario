@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Alterar senha
+{% endblock %}
+
+{% block content %}
+    <section class="card form-page-card shadow-sm">
+        <div class="card-body p-4">
+            <header class="mb-4">
+                <h1 class="h3 mb-2">Alterar senha</h1>
+                <p class="text-muted mb-0">
+                    Informe a senha atual e escolha uma nova senha segura.
+                </p>
+            </header>
+
+            <form method="post" novalidate>
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ form.non_field_errors }}
+                    </div>
+                {% endif %}
+
+                {% for field in form %}
+                    <div class="form-field">
+                        <label for="{{ field.id_for_label }}">
+                            {{ field.label }}
+                        </label>
+
+                        {{ field }}
+
+                        {% if field.help_text %}
+                            <small class="form-help">
+                                {{ field.help_text|safe }}
+                            </small>
+                        {% endif %}
+
+                        {{ field.errors }}
+                    </div>
+                {% endfor %}
+
+                <div class="d-flex flex-wrap gap-2 mt-4">
+                    <button class="btn btn-primary" type="submit">
+                        Salvar nova senha
+                    </button>
+
+                    <a class="btn btn-outline-secondary" href="{% url 'usuarios:perfil' %}">
+                        Voltar ao perfil
+                    </a>
+                </div>
+            </form>
+        </div>
+    </section>
+{% endblock %}

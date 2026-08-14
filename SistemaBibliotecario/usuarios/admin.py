@@ -1,8 +1,15 @@
 from django.contrib import admin
-from .models import Usuario
 
-# Register your models here.
+from .models import Perfil
 
-@admin.register(Usuario)
-class UsuarioAdmin(admin.ModelAdmin):
-    readonly_fields = ("nome", "email", "senha")
+
+@admin.register(Perfil)
+class PerfilAdmin(admin.ModelAdmin):
+    list_display = ("usuario", "cargo", "telefone")
+    list_filter = ("cargo",)
+    search_fields = (
+        "usuario__username",
+        "usuario__first_name",
+        "usuario__last_name",
+        "usuario__email",
+    )

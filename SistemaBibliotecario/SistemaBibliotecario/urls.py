@@ -22,7 +22,7 @@ urlpatterns = [
     path(
         "",
         RedirectView.as_view(
-            pattern_name="dashboard",
+            pattern_name="dashboard:inicio",
             permanent=False,
         ),
     ),

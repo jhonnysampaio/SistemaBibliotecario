@@ -1,59 +1,92 @@
-from django.http.response import HttpResponse
-from django.shortcuts import render, redirect
-from .models import Usuario
-from hashlib import sha256
+from django.contrib import messages
+from django.contrib.auth import get_user_model, update_session_auth_hash
+from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth.models import Group
+from django.shortcuts import render, redirect, get_object_or_404
+from .forms import DadosUsuarioForm, PerfilForm, UsuarioForm
+from .models import Perfil
 
 # Create your views here.
 
-def cadastrar(request):
-    status = request.GET.get("status")
-    return render(request, "cadastro.html", {"status" : status})
+User = get_user_model()
 
-def valida_cadastro(request):
-    nome = request.POST.get("nome")
-    email = request.POST.get("email")
-    senha = request.POST.get("senha")
+@login_required
+def perfil(request):
+    perfil_obj, _ = Perfil.objects.get_or_create(usuario=request.user)
 
-    usuario = Usuario.objects.filter(email = email)
+    if request.method == "POST":
+        dados_form = DadosUsuarioForm(request.POST, instance=request.user)
+        telefone_form = PerfilForm(request.POST, instance=perfil_obj)
+        telefone_form.fields.pop("cargo")
 
-    if len(nome.strip()) == 0 or len(email.strip()) == 0:
-        return redirect("/auth/cadastro/?status=1")
+        if dados_form.is_valid() and telefone_form.is_valid():
+            dados_form.save()
+            telefone_form.save()
+            messages.success(request, "Perfil atualizado.")
+            return redirect("usuarios:perfil")
+    else:
+        dados_form = DadosUsuarioForm(instance=request.user)
+        telefone_form = PerfilForm(instance=perfil_obj)
+        telefone_form.fields.pop("cargo")
+    return render(
+        request,
+        "usuarios/perfil.html",
+        {"dados_form": dados_form, "perfil_form": telefone_form}
+    )
 
-    if len(senha.strip()) < 8:
-        return redirect("/auth/cadastro/?status=2")
+@login_required
+def alterar_senha(request):
+    form = PasswordChangeForm(request.user, request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        user = form.save()
+        update_session_auth_hash(request, user)
+        messages.success(request, "Senha alterada com sucesso.")
+        return redirect("usuarios:perfil")
+    return render(request, "usuarios/alterar_senha.html", {"form": form})
 
-    if len(usuario) > 0:
-        return redirect("/auth/cadastro/?status=3")
+@permission_required("auth.view_user", raise_exception=True)
+def lista(request):
+    usuarios = User.objects.select_related("perfil").order_by("first_name", "username")
+    return render(request, "usuarios/lista.html", {"usuarios": usuarios})
 
-    try:
-        senha = sha256(senha.encode()).hexdigest()
-        usuario = Usuario(nome = nome, email = email, senha = senha)
-        usuario.save()
+@permission_required("auth.add_user", raise_exception=True)
+def criar(request):
+    form = UsuarioForm(request.POST or None)
+    perfil_form = PerfilForm(request.POST or None)
+    if request.method == "POST" and form.is_valid() and perfil_form.is_valid():
+        user = form.save()
+        perfil = user.perfil
+        perfil.cargo = perfil_form.cleaned_data["cargo"]
+        perfil.telefone = perfil_form.cleaned_data["telefone"]
+        perfil.save()
+        grupo_por_cargo = {
+            Perfil.Cargo.BIBLIOTECARIO: "Bibliotecários",
+            Perfil.Cargo.AUXILIAR: "Auxiliares",
+            Perfil.Cargo.DIRECAO: "Direção",
+        }
+        grupo = Group.objects.filter(
+            name=grupo_por_cargo[perfil.cargo]
+        ).first()
+        if grupo:
+            user.groups.add(grupo)
+        messages.success(request, "Usuario Criado com sucesso.")
+        return redirect("usuarios:lista")
+    return render(
+        request,
+        "usuarios/form.html",
+        {"form": form, "perfil_form": perfil_form}
+    )
 
-        return redirect ("/auth/cadastro/?status=0")
-    except:
-        return redirect("/auth/cadastro/?status=4")
-    
-def login(request):
-    status = request.GET.get("status")
-    return render(request, "login.html", {"status" : status})
-
-def valida_login(request):
-    email = request.POST.get("email")
-    senha = request.POST.get("senha")
-    senha = sha256(senha.encode()).hexdigest()
-
-    usuario = Usuario.objects.filter(email = email).filter(senha = senha)
-
-    if len(usuario) == 0:
-        return redirect("/auth/login/?status=1")
-    elif len(usuario) > 0:
-        request.session["usuario"] = usuario[0].id
-        return redirect("/dashboard")
-    
-    return HttpResponse(f"{email} {senha}")
-
-def sair(request):
-    request.session.flush()
-
-    return redirect("/auth/login/")
+@permission_required("auth.change_user", raise_exception=True)
+def alternar_ativo(request, pk):
+    if request.method != "POST":
+        return redirect("usuarios:lista")
+    user = get_object_or_404(User, pk=pk)
+    if user == request.user:
+        messages.error(request, "Você não pode desativar a própria conta.")
+    else:
+        user.is_active = not user.is_active
+        user.save(update_fields=["is_active"])
+        messages.success(request, "Situação do usuário atualizada.")
+    return redirect("usuarios:lista")
