@@ -1,5 +1,8 @@
 from django import forms
+
 from .models import Aluno
+from .validators import somente_digitos
+
 
 class AlunoForm(forms.ModelForm):
     class Meta:
@@ -12,32 +15,28 @@ class AlunoForm(forms.ModelForm):
             "turma",
             "turno",
             "cpf",
-            "telefone"
+            "telefone",
+            "email",
+            "ativo",
         ]
 
         widgets = {
-            "matricula" : forms.TextInput(attrs={
-                "class" : "form-control"
-            }),
-            "nome" : forms.TextInput(attrs={
-                "class" : "form-control"
-            }),
-            "serie" : forms.TextInput(attrs={
-                "class" : "form-control"
-            }),
-            "turma" : forms.TextInput(attrs={
-                "class" : "form-control"
-            }),
-            "turno" : forms.Select(attrs={
-                "class" : "form-selct"
-            }),
-            "cpf" : forms.TextInput(attrs={
-                "class" : "form-control",
-                "placeholder" : "000.000.000-00"
-            }),
-            "telefone" : forms.TextInput(attrs={
-                "class" : "form-control",
-                "placeholder" : "(00) 00000-0000"
-            })
-
+            "cpf": forms.TextInput(attrs={"placeholder": "000.000.000-00"}),
+            "telefone": forms.TextInput(
+                attrs={"placeholder": "(00) 00000-0000"}
+            ),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            if isinstance(field.widget, forms.CheckboxInput):
+                field.widget.attrs["class"] = "form-check-input"
+            else:
+                field.widget.attrs["class"] = "form-control"
+
+    def clean_matricula(self):
+        return self.cleaned_data["matricula"].strip().upper()
+
+    def clean_cpf(self):
+        return somente_digitos(self.cleaned_data["cpf"])

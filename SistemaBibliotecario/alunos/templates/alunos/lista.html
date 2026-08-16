@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block title %}Alunos | Biblioteca{% endblock %}
+{% block eyebrow %}Cadastros{% endblock %}
+{% block page_title %}Alunos{% endblock %}
+
+{% block page_description %}
+<p class="text-muted mb-0">
+    Matrículas e histórico de leitura.
+</p>
+{% endblock %}
+
+{% block page_actions %}
+    {% if perms.alunos.add_aluno %}
+        <a class="btn btn-primary" href="{% url 'alunos:criar' %}">
+            <i class="bi bi-plus-lg" aria-hidden="true"></i>
+            Novo aluno
+        </a>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="panel">
+    <div class="panel-body border-bottom">
+        <form class="row g-2" method="get">
+            <div class="col-12 col-md-8">
+                <label class="visually-hidden" for="filtro-aluno">
+                    Pesquisar aluno
+                </label>
+                <input
+                    class="form-control"
+                    id="filtro-aluno"
+                    name="q"
+                    value="{{ q }}"
+                    placeholder="Nome, matrícula ou CPF"
+                >
+            </div>
+
+            <div class="col-8 col-md-3">
+                <label class="visually-hidden" for="filtro-situacao">
+                    Situação
+                </label>
+                <select
+                    class="form-select"
+                    id="filtro-situacao"
+                    name="situacao"
+                >
+                    <option value="">Todos</option>
+                    <option value="ativos" {% if situacao == "ativos" %}selected{% endif %}>
+                        Ativos
+                    </option>
+                    <option value="inativos" {% if situacao == "inativos" %}selected{% endif %}>
+                        Inativos
+                    </option>
+                </select>
+            </div>
+
+            <div class="col-4 col-md-auto">
+                <button class="btn btn-outline-secondary w-100" type="submit">
+                    Filtrar
+                </button>
+            </div>
+        </form>
+    </div>
+
+    {% if pagina.object_list %}
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Aluno</th>
+                        <th>Matrícula</th>
+                        <th>Turma</th>
+                        <th>Turno</th>
+                        <th>Situação</th>
+                        <th class="text-end">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for aluno in pagina %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'alunos:detalhe' aluno.pk %}">
+                                    {{ aluno.nome }}
+                                </a>
+                            </td>
+                            <td>{{ aluno.matricula }}</td>
+                            <td>{{ aluno.serie }} - {{ aluno.turma }}</td>
+                            <td>{{ aluno.get_turno_display }}</td>
+                            <td>
+                                <span class="badge-status {% if aluno.ativo %}badge-ativo{% else %}badge-devolvido{% endif %}">
+                                    {{ aluno.ativo|yesno:"Ativo,Inativo" }}
+                                </span>
+                            </td>
+                            <td class="text-end">
+                                {% if perms.alunos.change_aluno %}
+                                    <a
+                                        class="btn btn-sm btn-outline-secondary"
+                                        href="{% url 'alunos:editar' aluno.pk %}"
+                                    >
+                                        Editar
+                                    </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% include "includes/paginacao.html" with pagina=pagina %}
+    {% else %}
+        <div class="empty-state">
+            <i class="bi bi-people" aria-hidden="true"></i>
+            <strong>Nenhum aluno encontrado.</strong>
+            <p>Altere os filtros ou faça o primeiro cadastro.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

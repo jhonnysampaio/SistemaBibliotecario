@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block eyebrow %}Aluno{% endblock %}
+{% block page_title %}{{ aluno.nome }}{% endblock %}
+
+{% block page_actions %}
+    {% if perms.alunos.change_aluno %}
+        <a
+            class="btn btn-outline-secondary"
+            href="{% url 'alunos:editar' aluno.pk %}"
+        >
+            Editar
+        </a>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <div class="col-12 col-lg-5">
+        <section class="panel panel-body">
+            <dl class="row mb-0">
+                <dt class="col-5">Matrícula</dt>
+                <dd class="col-7">{{ aluno.matricula }}</dd>
+
+                <dt class="col-5">Turma</dt>
+                <dd class="col-7">{{ aluno.serie }} - {{ aluno.turma }}</dd>
+
+                <dt class="col-5">Turno</dt>
+                <dd class="col-7">{{ aluno.get_turno_display }}</dd>
+
+                <dt class="col-5">CPF</dt>
+                <dd class="col-7">{{ aluno.cpf }}</dd>
+
+                <dt class="col-5">Telefone</dt>
+                <dd class="col-7">{{ aluno.telefone|default:"-" }}</dd>
+
+                <dt class="col-5">E-mail</dt>
+                <dd class="col-7">{{ aluno.email|default:"-" }}</dd>
+
+                <dt class="col-5">Situação</dt>
+                <dd class="col-7">
+                    {{ aluno.ativo|yesno:"Ativo,Inativo" }}
+                </dd>
+            </dl>
+        </section>
+    </div>
+
+    <div class="col-12 col-lg-7">
+        <section class="panel panel-body">
+            <h2 class="h5">Empréstimos recentes</h2>
+
+            {% for emprestimo in aluno.emprestimos.all|slice:":8" %}
+                <div class="d-flex justify-content-between border-top py-2">
+                    <span>{{ emprestimo.livro.titulo }}</span>
+                    <span>{{ emprestimo.get_situacao_display }}</span>
+                </div>
+            {% empty %}
+                <p class="text-muted">Nenhum empréstimo.</p>
+            {% endfor %}
+        </section>
+    </div>
+</div>
+
+{% if perms.alunos.delete_aluno %}
+    <form
+        class="mt-4"
+        method="post"
+        action="{% url 'alunos:excluir' aluno.pk %}"
+        onsubmit="return confirm('Excluir este aluno?');"
+    >
+        {% csrf_token %}
+
+        <button class="btn btn-outline-danger" type="submit">
+            Excluir cadastro
+        </button>
+    </form>
+{% endif %}
+{% endblock %}
