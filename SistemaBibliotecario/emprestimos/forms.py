@@ -9,7 +9,7 @@ class EmprestimoForm(forms.ModelForm):
             "aluno",
             "livro",
             "data_inicio",
-            "data_termino"
+            "data_prevista"
         ]
 
         widgets = {
@@ -23,7 +23,7 @@ class EmprestimoForm(forms.ModelForm):
                 "class" : "form-control",
                 "type" : "date"
             }),
-            "data_termino" : forms.DateInput(attrs={
+            "data_prevista" : forms.DateInput(attrs={
                 "class" : "form-control",
                 "type" : "date"
             })

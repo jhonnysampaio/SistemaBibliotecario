@@ -1,13 +1,13 @@
 from django import forms
-from .models import Livros
+from .models import Livro
 
 class LivroForm(forms.ModelForm):
     class Meta:
-        model = Livros
+        model = Livro
         fields = [
                  "isbn", "titulo", "subtitulo", "autor", "data_cadastro",
                  "editora", "categoria", "cdd", "local_estante",
-                 "etiqueta", "quant_total", "exemp_disponiveis"
+                 "etiqueta", "quantidade_total", "quantidade_disponivel"
                  ]
 
         widgets = {
@@ -42,10 +42,10 @@ class LivroForm(forms.ModelForm):
             "etiqueta" : forms.TextInput(attrs={
                 "class" : "form-control"
             }),
-            "quant_total" : forms.NumberInput(attrs={
+            "quantidade_total" : forms.NumberInput(attrs={
                 "class" : "form-control"
             }),
-            "exemp_disponiveis" : forms.NumberInput(attrs={
+            "quantidade_disponivel" : forms.NumberInput(attrs={
                 "class" : "form-control"
             })
         }

@@ -1,12 +1,12 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
-from .models import Livros, Categoria
+from .models import Livro, Categoria
 from .forms import LivroForm
 
 # Create your views here.
 
 def listar_livro(request):
-    livros = Livros.objects.all()
+    livros = Livro.objects.all()
 
     return render(request, "listar_livro.html",{"livros" : livros})
 
@@ -30,7 +30,7 @@ def cadastrar_livro(request):
 
 def editar_livro(request, livro_id):
     categorias = Categoria.objects.all()
-    livro = get_object_or_404(Livros, id=livro_id)
+    livro = get_object_or_404(Livro, id=livro_id)
 
     if request.method == "POST":
         form = LivroForm(request.POST, instance=livro)
@@ -48,7 +48,7 @@ def editar_livro(request, livro_id):
                                                  "categorias" : categorias})
 
 def excluir_livro(request, livro_id):
-    livro = get_object_or_404(Livros, id=livro_id)
+    livro = get_object_or_404(Livro, id=livro_id)
     livro.delete()
 
     return redirect("listar_livro")
@@ -63,7 +63,7 @@ def excluir_livro(request, livro_id):
 #     cdd = request.POST.get("cdd")
 #     local_estante = request.POST.get("local_estante")
 #     etiqueta = request.POST.get("etiqueta")
-#     quant_total = request.POST.get("quant_total")
-#     exemp_disponiveis = request.POST.get("exemp_disponiveis")
+#     quantidade_total = request.POST.get("quantidade_total")
+#     quantidade_disponivel = request.POST.get("quantidade_disponivel")
 
-#     if 
+#     if

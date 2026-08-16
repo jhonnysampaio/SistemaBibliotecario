@@ -1,12 +1,12 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from .forms import AlunoForm 
-from .models import Alunos
+from .models import Aluno
 
 # Create your views here.
 
 def listar_aluno(request):
-    alunos = Alunos.objects.all()
+    alunos = Aluno.objects.all()
 
     return render(request, "listar_aluno.html", {"alunos" : alunos})
 
@@ -26,7 +26,7 @@ def cadastrar_aluno(request):
     return render(request, "cadastrar_aluno.html",{"form" : form})
 
 def editar_aluno(request, aluno_id):
-    aluno = get_object_or_404(Alunos, id=aluno_id)
+    aluno = get_object_or_404(Aluno, id=aluno_id)
 
     if request.method == "POST":
         form = AlunoForm(request.POST, instance=aluno)
@@ -45,7 +45,7 @@ def editar_aluno(request, aluno_id):
     })
 
 def excluir_aluno(request, aluno_id):
-    aluno = get_object_or_404(Alunos, id=aluno_id)
+    aluno = get_object_or_404(Aluno, id=aluno_id)
     aluno.delete()
 
     return redirect("listar_aluno")
