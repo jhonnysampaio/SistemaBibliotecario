@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     "emprestimos",
     "dashboard",
     "livros",
+    "core",
 ]
 
 MIDDLEWARE = [

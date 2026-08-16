@@ -1,159 +1,197 @@
 {% load static %}
 
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-br">
-
 <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
 
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Biblioteca Escolar{% endblock %}</title>
 
-    <title>
-        {% block title %}
-            Sistema de Biblioteca
-        {% endblock %}
-    </title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Lora:wght@600;700&display=swap"
+        rel="stylesheet"
+    >
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+        rel="stylesheet"
+    >
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
 
-
-    <!-- Bootstrap -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
-
-
-    <style>
-
-        body {
-            background-color: #f8f9fa;
-        }
-
-
-        .navbar-brand {
-            font-weight: bold;
-        }
-
-
-        .container-page {
-            margin-top: 30px;
-        }
-
-    </style>
-
+    {% block extra_css %}
+    {% endblock %}
 </head>
 
-
 <body>
+    <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
 
+    <div class="app-shell">
+        <aside class="sidebar" id="sidebar" aria-label="Navegação principal">
+            <a class="brand" href="{% url 'dashboard:inicio' %}">
+                <span class="brand-mark" aria-hidden="true">
+                    <i class="bi bi-book-half"></i>
+                </span>
 
-<!-- Barra de navegação -->
+                <span>
+                    <strong>Biblioteca</strong>
+                    <small>Gestão escolar</small>
+                </span>
+            </a>
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <nav class="sidebar-nav">
+                <a href="{% url 'dashboard:inicio' %}">
+                    <i class="bi bi-grid-1x2" aria-hidden="true"></i>
+                    <span>Visão geral</span>
+                </a>
 
-    <div class="container">
+                <a href="{% url 'listar_aluno' %}">
+                    <i class="bi bi-people" aria-hidden="true"></i>
+                    <span>Alunos</span>
+                </a>
 
-        <a class="navbar-brand" href="{% url 'dashboard' %}">
-            📚 Biblioteca
-        </a>
+                <a href="{% url 'listar_livro' %}">
+                    <i class="bi bi-journal-bookmark" aria-hidden="true"></i>
+                    <span>Acervo</span>
+                </a>
 
+                <a href="{% url 'listar_emprestimo' %}">
+                    <i class="bi bi-arrow-left-right" aria-hidden="true"></i>
+                    <span>Empréstimos</span>
+                </a>
 
-        <button class="navbar-toggler" 
-                type="button" 
-                data-bs-toggle="collapse" 
-                data-bs-target="#navbarNav">
-
-            <span class="navbar-toggler-icon"></span>
-
-        </button>
-
-
-
-        <div class="collapse navbar-collapse" id="navbarNav">
-
-
-            <ul class="navbar-nav ms-auto">
-
-
-                <li class="nav-item">
-
-                    <a class="nav-link" href="{% url 'dashboard' %}">
-                        Início
+                {% if perms.auth.view_user %}
+                    <a href="{% url 'usuarios:lista' %}">
+                        <i class="bi bi-person-gear" aria-hidden="true"></i>
+                        <span>Equipe</span>
                     </a>
+                {% endif %}
+            </nav>
 
-                </li>
+            <div class="sidebar-user">
+                <div class="avatar" aria-hidden="true">
+                    {{ request.user.first_name|default:request.user.username|slice:":1"|upper }}
+                </div>
 
+                <div class="sidebar-user-data">
+                    <strong>{{ request.user.get_full_name|default:request.user.username }}</strong>
+                    <a href="{% url 'usuarios:perfil' %}">Ver perfil</a>
+                </div>
 
-                <li class="nav-item">
+                <form method="post" action="{% url 'usuarios:logout' %}">
+                    {% csrf_token %}
 
-                    <a class="nav-link" href="{% url 'cadastrar_livro' %}">
-                        Cadastrar Livro
-                    </a>
+                    <button
+                        class="icon-button icon-button-light"
+                        type="submit"
+                        title="Sair"
+                    >
+                        <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
+                        <span class="visually-hidden">Sair</span>
+                    </button>
+                </form>
+            </div>
+        </aside>
 
-                </li>
+        <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
 
+        <div class="app-main">
+            <header class="topbar">
+                <button
+                    class="icon-button d-lg-none"
+                    id="sidebar-toggle"
+                    type="button"
+                    aria-controls="sidebar"
+                    aria-expanded="false"
+                >
+                    <i class="bi bi-list" aria-hidden="true"></i>
+                    <span class="visually-hidden">Abrir menu</span>
+                </button>
 
-                <li class="nav-item">
+                <form
+                    class="global-search"
+                    action="{% url 'core:pesquisa' %}"
+                    method="get"
+                    role="search"
+                >
+                    <i class="bi bi-search" aria-hidden="true"></i>
+                    <label class="visually-hidden" for="global-q">Pesquisar</label>
+                    <input
+                        id="global-q"
+                        name="q"
+                        value="{{ request.GET.q }}"
+                        placeholder="Livro, autor, aluno ou matrícula"
+                    >
+                </form>
 
-                    <a class="nav-link" href="{% url 'listar_livro' %}">
-                        Listar Livros
-                    </a>
+                <button
+                    class="icon-button"
+                    id="theme-toggle"
+                    type="button"
+                    title="Alternar tema"
+                    aria-pressed="false"
+                >
+                    <i class="bi bi-moon-stars" aria-hidden="true"></i>
+                    <span class="visually-hidden">Alternar tema</span>
+                </button>
+            </header>
 
-                </li>
+            <main id="conteudo" class="page-content">
+                {% if messages %}
+                    <div class="messages" aria-live="polite">
+                        {% for message in messages %}
+                            <div
+                                class="alert {% if message.tags == 'error' %}alert-danger{% else %}alert-{{ message.tags|default:'info' }}{% endif %} alert-dismissible fade show"
+                                role="alert"
+                            >
+                                {{ message }}
 
-                <li class="nav-item">
+                                <button
+                                    type="button"
+                                    class="btn-close"
+                                    data-bs-dismiss="alert"
+                                    aria-label="Fechar"
+                                ></button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
 
-                    <a class="nav-link" href="{% url 'cadastrar_aluno' %}">
-                        Cadastrar Aluno
-                    </a>
+                <header class="page-heading">
+                    <div>
+                        <p class="eyebrow">
+                            {% block eyebrow %}Biblioteca escolar{% endblock %}
+                        </p>
 
-                </li>
+                        <h1>{% block page_title %}Visão geral{% endblock %}</h1>
 
-                <li class="nav-item">
+                        {% block page_description %}
+                        {% endblock %}
+                    </div>
 
-                    <a class="nav-link" href="{% url 'listar_aluno' %}">
-                        Listar Alunos
-                    </a>
+                    <div class="page-actions">
+                        {% block page_actions %}
+                        {% endblock %}
+                    </div>
+                </header>
 
-                </li>
-
-                <li>
-
-                    <a href="{% url 'sair' %}"
-                    class="btn btn-danger">
-                        Sair
-                    </a>
-
-                </li>
-
-
-            </ul>
-
-
+                {% block content %}
+                {% endblock %}
+            </main>
         </div>
-
-
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'js/sidebar.js' %}"></script>
+    <script src="{% static 'js/theme.js' %}"></script>
 
-</nav>
-
-
-
-<!-- Conteúdo das páginas -->
-
-<div class="container container-page">
-
-    {% block content %}
-
+    {% block extra_js %}
     {% endblock %}
-
-</div>
-
-
-
-
-<!-- Bootstrap JS -->
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
-
-
 </body>
-
 </html>
