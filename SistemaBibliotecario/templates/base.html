@@ -61,9 +61,14 @@
                     <span>Acervo</span>
                 </a>
 
-                <a href="{% url 'listar_emprestimo' %}">
+                <a href="{% url 'emprestimos:lista' %}">
                     <i class="bi bi-arrow-left-right" aria-hidden="true"></i>
                     <span>Empréstimos</span>
+                </a>
+
+                <a href="{% url 'emprestimos:historico' %}">
+                    <i class="bi bi-clock-history"></i>
+                    <span>Histórico</span>
                 </a>
 
                 {% if perms.auth.view_user %}

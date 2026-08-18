@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}Empréstimo #{{ emprestimo.pk }} | Biblioteca{% endblock %}
+{% block eyebrow %}Empréstimo #{{ emprestimo.pk }}{% endblock %}
+{% block page_title %}{{ emprestimo.livro.titulo }}{% endblock %}
+
+{% block page_description %}
+<p class="text-muted mb-0">
+    Acompanhe o prazo e as movimentações deste empréstimo.
+</p>
+{% endblock %}
+
+{% block page_actions %}
+<a class="btn btn-outline-secondary" href="{% url 'emprestimos:lista' %}">
+    Voltar para a lista
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <div class="col-12 col-lg-8">
+        <section class="panel panel-body">
+            <dl class="row mb-0">
+                <dt class="col-5">Aluno</dt>
+                <dd class="col-7">{{ emprestimo.aluno.nome }}</dd>
+
+                <dt class="col-5">Matrícula</dt>
+                <dd class="col-7">{{ emprestimo.aluno.matricula }}</dd>
+
+                <dt class="col-5">Início</dt>
+                <dd class="col-7">{{ emprestimo.data_inicio|date:"d/m/Y" }}</dd>
+
+                <dt class="col-5">Prevista</dt>
+                <dd class="col-7">{{ emprestimo.data_prevista|date:"d/m/Y" }}</dd>
+
+                <dt class="col-5">Situação</dt>
+                <dd class="col-7">{{ emprestimo.get_situacao_display }}</dd>
+
+                <dt class="col-5">Renovações</dt>
+                <dd class="col-7">{{ emprestimo.renovacoes }} de 2</dd>
+
+                {% if emprestimo.observacoes %}
+                    <dt class="col-5">Observações</dt>
+                    <dd class="col-7">{{ emprestimo.observacoes|linebreaksbr }}</dd>
+                {% endif %}
+            </dl>
+        </section>
+    </div>
+
+    <div class="col-12 col-lg-4">
+        <section class="panel panel-body">
+            {% if emprestimo.situacao != "DEVOLVIDO" %}
+                {% if perms.emprestimos.pode_renovar_emprestimo %}
+                    <form
+                        method="post"
+                        action="{% url 'emprestimos:renovar' emprestimo.pk %}"
+                    >
+                        {% csrf_token %}
+
+                        <button
+                            class="btn btn-outline-secondary w-100 mb-2"
+                            type="submit"
+                        >
+                            Renovar 7 dias
+                        </button>
+                    </form>
+                {% endif %}
+
+                {% if perms.emprestimos.pode_devolver_emprestimo %}
+                    <form
+                        method="post"
+                        action="{% url 'emprestimos:devolver' emprestimo.pk %}"
+                    >
+                        {% csrf_token %}
+
+                        <button class="btn btn-primary w-100" type="submit">
+                            Registrar devolução
+                        </button>
+                    </form>
+                {% endif %}
+            {% else %}
+                <div class="alert alert-success mb-0">
+                    Devolvido em {{ emprestimo.data_devolucao|date:"d/m/Y" }}.
+                </div>
+            {% endif %}
+        </section>
+    </div>
+</div>
+{% endblock %}

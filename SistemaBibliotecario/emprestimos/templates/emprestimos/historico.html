@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Histórico de empréstimos | Biblioteca{% endblock %}
+{% block eyebrow %}Circulação{% endblock %}
+{% block page_title %}Histórico{% endblock %}
+
+{% block page_description %}
+<p class="text-muted mb-0">
+    Consulte os empréstimos já devolvidos sem alterar seus registros.
+</p>
+{% endblock %}
+
+{% block content %}
+<div class="panel">
+    {% if pagina.object_list %}
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Aluno</th>
+                        <th>Livro</th>
+                        <th>Início</th>
+                        <th>Prazo</th>
+                        <th>Devolução</th>
+                        <th>Situação</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for emprestimo in pagina %}
+                        <tr>
+                            <td>
+                                {{ emprestimo.aluno.nome }}
+                                <small class="d-block text-muted">
+                                    {{ emprestimo.aluno.matricula }}
+                                </small>
+                            </td>
+                            <td>
+                                <a href="{% url 'emprestimos:detalhe' emprestimo.pk %}">
+                                    {{ emprestimo.livro.titulo }}
+                                </a>
+                            </td>
+                            <td>{{ emprestimo.data_inicio|date:"d/m/Y" }}</td>
+                            <td>{{ emprestimo.data_prevista|date:"d/m/Y" }}</td>
+                            <td>{{ emprestimo.data_devolucao|date:"d/m/Y" }}</td>
+                            <td>
+                                <span class="badge-status badge-devolvido">
+                                    {{ emprestimo.get_situacao_display }}
+                                </span>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% include "includes/paginacao.html" with pagina=pagina querystring=querystring %}
+    {% else %}
+        <div class="empty-state">
+            <i class="bi bi-clock-history" aria-hidden="true"></i>
+            <strong>Nenhum empréstimo devolvido.</strong>
+            <p>As devoluções registradas aparecerão neste histórico.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Novo empréstimo | Biblioteca{% endblock %}
+{% block eyebrow %}Circulação{% endblock %}
+{% block page_title %}Novo empréstimo{% endblock %}
+
+{% block page_description %}
+<p class="text-muted mb-0">
+    Registre a retirada de um exemplar disponível.
+</p>
+{% endblock %}
+
+{% block content %}
+<form class="panel" method="post" novalidate>
+    {% csrf_token %}
+
+    <div class="panel-body">
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        <div class="row g-3">
+            {% for field in form %}
+                <div class="{% if field.name == 'observacoes' %}col-12{% else %}col-12 col-md-6{% endif %}">
+                    <label class="form-label" for="{{ field.id_for_label }}">
+                        {{ field.label }}
+                    </label>
+
+                    {{ field }}
+
+                    {% if field.help_text %}
+                        <div class="form-text">
+                            {{ field.help_text }}
+                        </div>
+                    {% endif %}
+
+                    {% for error in field.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="panel-body border-top d-flex justify-content-end gap-2">
+        <a
+            class="btn btn-outline-secondary"
+            href="{% url 'emprestimos:lista' %}"
+        >
+            Cancelar
+        </a>
+
+        <button class="btn btn-primary" type="submit">
+            Confirmar empréstimo
+        </button>
+    </div>
+</form>
+{% endblock %}

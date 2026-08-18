@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block title %}Empréstimos | Biblioteca{% endblock %}
+{% block eyebrow %}Circulação{% endblock %}
+{% block page_title %}Empréstimos{% endblock %}
+
+{% block page_description %}
+<p class="text-muted mb-0">
+    Consulte prazos, situações e empréstimos em aberto.
+</p>
+{% endblock %}
+
+{% block page_actions %}
+    {% if perms.emprestimos.add_emprestimo %}
+        <a class="btn btn-primary" href="{% url 'emprestimos:novo' %}">
+            <i class="bi bi-plus-lg" aria-hidden="true"></i>
+            Novo empréstimo
+        </a>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="panel">
+    <div class="panel-body border-bottom">
+        <form class="row g-2" method="get">
+            <div class="col-12 col-lg-7">
+                <label class="visually-hidden" for="filtro-emprestimo">
+                    Pesquisar empréstimo
+                </label>
+
+                <input
+                    class="form-control"
+                    id="filtro-emprestimo"
+                    name="q"
+                    value="{{ q }}"
+                    placeholder="Aluno, matrícula ou título do livro"
+                >
+            </div>
+
+            <div class="col-8 col-lg-3">
+                <label class="visually-hidden" for="filtro-situacao">
+                    Situação
+                </label>
+
+                <select
+                    class="form-select"
+                    id="filtro-situacao"
+                    name="situacao"
+                >
+                    <option value="abertos" {% if situacao == "abertos" %}selected{% endif %}>
+                        Em aberto
+                    </option>
+                    <option value="ATIVO" {% if situacao == "ATIVO" %}selected{% endif %}>
+                        Ativos
+                    </option>
+                    <option value="ATRASADO" {% if situacao == "ATRASADO" %}selected{% endif %}>
+                        Atrasados
+                    </option>
+                    <option value="DEVOLVIDO" {% if situacao == "DEVOLVIDO" %}selected{% endif %}>
+                        Devolvidos
+                    </option>
+                    <option value="todos" {% if situacao == "todos" %}selected{% endif %}>
+                        Todos
+                    </option>
+                </select>
+            </div>
+
+            <div class="col-4 col-lg-2">
+                <button class="btn btn-outline-secondary w-100" type="submit">
+                    Filtrar
+                </button>
+            </div>
+        </form>
+    </div>
+
+    {% if pagina.object_list %}
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Aluno</th>
+                        <th>Livro</th>
+                        <th>Prazo</th>
+                        <th>Situação</th>
+                        <th class="text-end">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for emprestimo in pagina %}
+                        <tr>
+                            <td>
+                                {{ emprestimo.aluno.nome }}
+                                <small class="d-block text-muted">
+                                    {{ emprestimo.aluno.matricula }}
+                                </small>
+                            </td>
+                            <td>{{ emprestimo.livro.titulo }}</td>
+                            <td>{{ emprestimo.data_prevista|date:"d/m/Y" }}</td>
+                            <td>
+                                <span class="badge-status {% if emprestimo.situacao == 'ATIVO' %}badge-ativo{% elif emprestimo.situacao == 'ATRASADO' %}badge-atrasado{% else %}badge-devolvido{% endif %}">
+                                    {{ emprestimo.get_situacao_display }}
+                                </span>
+                            </td>
+                            <td class="text-end">
+                                <a
+                                    class="btn btn-sm btn-outline-secondary"
+                                    href="{% url 'emprestimos:detalhe' emprestimo.pk %}"
+                                >
+                                    Detalhes
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% include "includes/paginacao.html" with pagina=pagina querystring=querystring %}
+    {% else %}
+        <div class="empty-state">
+            <i class="bi bi-arrow-left-right" aria-hidden="true"></i>
+            <strong>Nenhum empréstimo encontrado.</strong>
+            <p>Altere os filtros ou registre um novo empréstimo.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
