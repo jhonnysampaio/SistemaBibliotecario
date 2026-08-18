@@ -16,18 +16,18 @@
             <h2 class="mb-4">Sistema de Biblioteca</h2>
 
             <div class="d-grid gap-3">
-                <a href="{% url 'cadastrar_livro' %}" class="btn btn-primary btn-lg">
+                <a href="{% url 'livros:criar' %}" class="btn btn-primary btn-lg">
                     📚 Cadastrar Livros
                 </a>
 
-                <a href="{% url 'listar_livro' %}" class="btn btn-success btn-lg">
+                <a href="{% url 'livros:lista' %}" class="btn btn-success btn-lg">
                     📖 Listar Livros
                 </a> 
-                <a href="{% url 'cadastrar_aluno' %}" class="btn btn-primary btn-lg">
+                <a href="{% url 'alunos:criar' %}" class="btn btn-primary btn-lg">
                     Cadastrar Alunos
                 </a>
 
-                <a href="{% url 'listar_aluno' %}" class="btn btn-success btn-lg">
+                <a href="{% url 'alunos:lista' %}" class="btn btn-success btn-lg">
                     Listar Alunos
                 </a>
                 <a href="{% url 'novo_emprestimo' %}" class="btn btn-primary btn-lg">

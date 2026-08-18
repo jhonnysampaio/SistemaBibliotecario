@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}{{ livro.titulo }} | Biblioteca{% endblock %}
+{% block eyebrow %}Acervo{% endblock %}
+{% block page_title %}{{ livro.titulo }}{% endblock %}
+
+{% block page_actions %}
+    {% if perms.livros.change_livro %}
+        <a
+            class="btn btn-outline-secondary"
+            href="{% url 'livros:editar' livro.pk %}"
+        >
+            Editar
+        </a>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <div class="col-12 col-lg-6">
+        <section class="panel panel-body">
+            <dl class="row mb-0">
+                <dt class="col-5">ISBN</dt>
+                <dd class="col-7">{{ livro.isbn }}</dd>
+
+                <dt class="col-5">Subtítulo</dt>
+                <dd class="col-7">{{ livro.subtitulo|default:"-" }}</dd>
+
+                <dt class="col-5">Autor</dt>
+                <dd class="col-7">{{ livro.autor }}</dd>
+
+                <dt class="col-5">Ano de publicação</dt>
+                <dd class="col-7">{{ livro.ano_publicacao|default:"-" }}</dd>
+
+                <dt class="col-5">Editora</dt>
+                <dd class="col-7">{{ livro.editora }}</dd>
+
+                <dt class="col-5">Categoria</dt>
+                <dd class="col-7">{{ livro.categoria }}</dd>
+
+                <dt class="col-5">CDD</dt>
+                <dd class="col-7">{{ livro.cdd }}</dd>
+
+                <dt class="col-5">Local</dt>
+                <dd class="col-7">{{ livro.local_estante }}</dd>
+
+                <dt class="col-5">Etiqueta</dt>
+                <dd class="col-7">{{ livro.etiqueta }}</dd>
+
+                <dt class="col-5">Estoque</dt>
+                <dd class="col-7">
+                    {{ livro.quantidade_disponivel }} de {{ livro.quantidade_total }} disponível(is)
+                </dd>
+
+                <dt class="col-5">Data de cadastro</dt>
+                <dd class="col-7">{{ livro.data_cadastro|date:"d/m/Y" }}</dd>
+
+                <dt class="col-5">Situação</dt>
+                <dd class="col-7">{{ livro.ativo|yesno:"Ativo,Inativo" }}</dd>
+            </dl>
+        </section>
+    </div>
+
+    <div class="col-12 col-lg-6">
+        <section class="panel panel-body">
+            <h2 class="h5">Empréstimos recentes</h2>
+
+            {% for emprestimo in livro.emprestimos.all|slice:":8" %}
+                <div class="d-flex justify-content-between gap-3 border-top py-2">
+                    <span>{{ emprestimo.aluno.nome }}</span>
+                    <span>{{ emprestimo.get_situacao_display }}</span>
+                </div>
+            {% empty %}
+                <p class="text-muted">Nenhum empréstimo.</p>
+            {% endfor %}
+        </section>
+    </div>
+</div>
+
+{% if perms.livros.delete_livro %}
+    <form
+        class="mt-4"
+        method="post"
+        action="{% url 'livros:excluir' livro.pk %}"
+        onsubmit="return confirm('Excluir este livro?');"
+    >
+        {% csrf_token %}
+
+        <button class="btn btn-outline-danger" type="submit">
+            Excluir cadastro
+        </button>
+    </form>
+{% endif %}
+{% endblock %}

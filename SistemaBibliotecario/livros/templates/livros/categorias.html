@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}Categorias | Biblioteca{% endblock %}
+{% block eyebrow %}Acervo{% endblock %}
+{% block page_title %}Categorias{% endblock %}
+
+{% block page_description %}
+<p class="text-muted mb-0">
+    Organize o catálogo por áreas e assuntos.
+</p>
+{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    {% if perms.livros.add_categoria %}
+        <div class="col-12 col-lg-5">
+            <form method="post" class="panel" novalidate>
+                {% csrf_token %}
+
+                <div class="panel-body">
+                    <h2 class="h5">Nova categoria</h2>
+
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger" role="alert">
+                            {{ form.non_field_errors }}
+                        </div>
+                    {% endif %}
+
+                    {% for field in form %}
+                        <div class="mb-3">
+                            <label class="form-label" for="{{ field.id_for_label }}">
+                                {{ field.label }}
+                            </label>
+
+                            {{ field }}
+
+                            {% for error in field.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ error }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <div class="panel-body border-top text-end">
+                    <button class="btn btn-primary" type="submit">
+                        Salvar categoria
+                    </button>
+                </div>
+            </form>
+        </div>
+    {% endif %}
+
+    <div class="col-12 {% if perms.livros.add_categoria %}col-lg-7{% endif %}">
+        <section class="panel">
+            {% for categoria in categorias %}
+                <div class="panel-body {% if not forloop.first %}border-top{% endif %}">
+                    <div class="d-flex justify-content-between gap-3">
+                        <div>
+                            <strong>{{ categoria.nome }}</strong>
+                            {% if categoria.descricao %}
+                                <p class="text-muted mb-0">
+                                    {{ categoria.descricao }}
+                                </p>
+                            {% endif %}
+                        </div>
+
+                        <span class="badge-status {% if categoria.ativa %}badge-ativo{% else %}badge-devolvido{% endif %}">
+                            {{ categoria.ativa|yesno:"Ativa,Inativa" }}
+                        </span>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="empty-state">
+                    <i class="bi bi-tags" aria-hidden="true"></i>
+                    <strong>Nenhuma categoria cadastrada.</strong>
+                </div>
+            {% endfor %}
+        </section>
+    </div>
+</div>
+{% endblock %}

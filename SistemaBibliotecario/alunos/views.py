@@ -30,10 +30,17 @@ def lista(request):
         alunos = alunos.filter(ativo=False)
 
     pagina = Paginator(alunos, 20).get_page(request.GET.get("page"))
+    parametros = request.GET.copy()
+    parametros.pop("page", None)
     return render(
         request,
         "alunos/lista.html",
-        {"pagina": pagina, "q": q, "situacao": situacao},
+        {
+            "pagina": pagina,
+            "q": q,
+            "situacao": situacao,
+            "querystring": parametros.urlencode(),
+        },
     )
 
 

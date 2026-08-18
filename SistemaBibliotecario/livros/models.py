@@ -2,6 +2,7 @@ from django.db import models
 from datetime import date
 from django.core.exceptions import ValidationError
 from django.db.models import F, Q
+from .validators import validar_isbn
 
 # Create your models here.
 
@@ -17,7 +18,12 @@ class Categoria(models.Model):
         return self.nome
 
 class Livro(models.Model):
-    isbn = models.CharField("ISBN", max_length=17, unique=True)
+    isbn = models.CharField(
+        "ISBN",
+        max_length=17,
+        unique=True,
+        validators=[validar_isbn],
+        )
     titulo = models.CharField("título" ,max_length=150, db_index=True)
     subtitulo = models.CharField("subtítulo", max_length=150, blank = True)
     autor = models.CharField(max_length=120, db_index=True)

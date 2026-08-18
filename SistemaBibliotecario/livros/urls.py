@@ -1,9 +1,14 @@
 from django.urls import path
+
 from . import views
 
+app_name = "livros"
+
 urlpatterns = [
-    path("cadastrar/", views.cadastrar_livro, name="cadastrar_livro" ),
-    path("listar/", views.listar_livro, name="listar_livro"),
-    path("editar/<int:livro_id>/", views.editar_livro, name="editar_livro"),
-    path("excluir/<int:livro_id>/", views.excluir_livro, name="excluir_livro")
+    path("", views.lista, name="lista"),
+    path("novo/", views.criar, name="criar"),
+    path("categorias/", views.categorias, name="categorias"),
+    path("<int:pk>/", views.detalhe, name="detalhe"),
+    path("<int:pk>/editar/", views.editar, name="editar"),
+    path("<int:pk>/excluir/", views.excluir, name="excluir"),
 ]

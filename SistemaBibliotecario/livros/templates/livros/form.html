@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}{{ titulo }} | Biblioteca{% endblock %}
+{% block eyebrow %}Acervo{% endblock %}
+{% block page_title %}{{ titulo }}{% endblock %}
+
+{% block content %}
+<form method="post" class="panel" novalidate>
+    {% csrf_token %}
+
+    <div class="panel-body">
+        <div class="alert alert-light border" role="note">
+            Informe a quantidade total. Os exemplares disponíveis são calculados
+            pelo sistema conforme empréstimos e devoluções.
+        </div>
+
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger" role="alert">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        <div class="row g-3">
+            {% for field in form %}
+                <div class="{% if field.name == 'titulo' or field.name == 'subtitulo' %}col-12 col-md-8{% else %}col-12 col-md-4{% endif %}">
+                    <label class="form-label" for="{{ field.id_for_label }}">
+                        {{ field.label }}
+                    </label>
+
+                    {{ field }}
+
+                    {% if field.help_text %}
+                        <div class="form-text">
+                            {{ field.help_text }}
+                        </div>
+                    {% endif %}
+
+                    {% for error in field.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="panel-body border-top d-flex justify-content-end gap-2">
+        <a class="btn btn-outline-secondary" href="{% url 'livros:lista' %}">
+            Cancelar
+        </a>
+
+        <button class="btn btn-primary" type="submit">
+            Salvar livro
+        </button>
+    </div>
+</form>
+{% endblock %}
