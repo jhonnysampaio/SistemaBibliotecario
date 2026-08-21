@@ -1,18 +1,154 @@
 {% extends "base.html" %}
 
 {% block title %}Pesquisa | Biblioteca{% endblock %}
+{% block eyebrow %}Consulta global{% endblock %}
 {% block page_title %}Pesquisa{% endblock %}
 
-{% block content %}
-<div class="panel">
-    <div class="empty-state">
-        <i class="bi bi-search" aria-hidden="true"></i>
+{% block page_description %}
+<p class="text-muted mb-0">
+    Encontre alunos, livros e empréstimos em um só lugar.
+</p>
+{% endblock %}
 
-        {% if q %}
-            A busca por “{{ q }}” será conectada na Sprint 8.
-        {% else %}
-            Digite um termo no campo superior.
+{% block content %}
+{% if q|length < 2 %}
+    <div class="panel">
+        <div class="empty-state">
+            <i class="bi bi-search" aria-hidden="true"></i>
+            <strong>Digite ao menos dois caracteres.</strong>
+            <p class="mb-0">
+                Use o campo de pesquisa no topo da página.
+            </p>
+        </div>
+    </div>
+{% else %}
+    <p class="text-muted mb-3">
+        Resultados para <strong>“{{ q }}”</strong>
+    </p>
+
+    <div class="row g-4">
+        {% if perms.alunos.view_aluno %}
+            <div class="col-12 col-xl-4">
+                <section class="panel h-100" aria-labelledby="titulo-resultados-alunos">
+                    <div class="panel-body border-bottom d-flex align-items-center justify-content-between gap-3">
+                        <h2 class="h5 mb-0" id="titulo-resultados-alunos">
+                            <i class="bi bi-people me-2" aria-hidden="true"></i>
+                            Alunos
+                        </h2>
+
+                        <span class="badge rounded-pill text-bg-secondary">
+                            {{ alunos|length }}
+                        </span>
+                    </div>
+
+                    {% for aluno in alunos %}
+                        <a
+                            class="panel-body border-bottom d-block text-reset text-decoration-none"
+                            href="{% url 'alunos:detalhe' aluno.pk %}"
+                        >
+                            <strong class="d-block">{{ aluno.nome }}</strong>
+                            <small class="d-block text-muted mt-1">
+                                Matrícula {{ aluno.matricula }}
+                            </small>
+                            <small class="d-block text-muted">
+                                {{ aluno.serie }} - {{ aluno.turma }} · {{ aluno.get_turno_display }}
+                            </small>
+                        </a>
+                    {% empty %}
+                        <div class="empty-state">
+                            <i class="bi bi-person-x" aria-hidden="true"></i>
+                            <strong>Nenhum aluno encontrado.</strong>
+                        </div>
+                    {% endfor %}
+                </section>
+            </div>
+        {% endif %}
+
+        {% if perms.livros.view_livro %}
+            <div class="col-12 col-xl-4">
+                <section class="panel h-100" aria-labelledby="titulo-resultados-livros">
+                    <div class="panel-body border-bottom d-flex align-items-center justify-content-between gap-3">
+                        <h2 class="h5 mb-0" id="titulo-resultados-livros">
+                            <i class="bi bi-journal-bookmark me-2" aria-hidden="true"></i>
+                            Livros
+                        </h2>
+
+                        <span class="badge rounded-pill text-bg-secondary">
+                            {{ livros|length }}
+                        </span>
+                    </div>
+
+                    {% for livro in livros %}
+                        <a
+                            class="panel-body border-bottom d-block text-reset text-decoration-none"
+                            href="{% url 'livros:detalhe' livro.pk %}"
+                        >
+                            <strong class="d-block">{{ livro.titulo }}</strong>
+                            <small class="d-block text-muted mt-1">
+                                {{ livro.autor }}
+                            </small>
+                            <small class="d-block text-muted">
+                                {{ livro.categoria }} · ISBN {{ livro.isbn }}
+                            </small>
+                        </a>
+                    {% empty %}
+                        <div class="empty-state">
+                            <i class="bi bi-journal-x" aria-hidden="true"></i>
+                            <strong>Nenhum livro encontrado.</strong>
+                        </div>
+                    {% endfor %}
+                </section>
+            </div>
+        {% endif %}
+
+        {% if perms.emprestimos.view_emprestimo %}
+            <div class="col-12 col-xl-4">
+                <section class="panel h-100" aria-labelledby="titulo-resultados-emprestimos">
+                    <div class="panel-body border-bottom d-flex align-items-center justify-content-between gap-3">
+                        <h2 class="h5 mb-0" id="titulo-resultados-emprestimos">
+                            <i class="bi bi-arrow-left-right me-2" aria-hidden="true"></i>
+                            Empréstimos
+                        </h2>
+
+                        <span class="badge rounded-pill text-bg-secondary">
+                            {{ emprestimos|length }}
+                        </span>
+                    </div>
+
+                    {% for emprestimo in emprestimos %}
+                        <a
+                            class="panel-body border-bottom d-block text-reset text-decoration-none"
+                            href="{% url 'emprestimos:detalhe' emprestimo.pk %}"
+                        >
+                            <strong class="d-block">{{ emprestimo.aluno.nome }}</strong>
+                            <small class="d-block text-muted mt-1">
+                                {{ emprestimo.livro.titulo }}
+                            </small>
+                            <span class="badge-status mt-2 {% if emprestimo.situacao == 'ATIVO' %}badge-ativo{% elif emprestimo.situacao == 'ATRASADO' %}badge-atrasado{% else %}badge-devolvido{% endif %}">
+                                {{ emprestimo.get_situacao_display }}
+                            </span>
+                            <small class="text-muted ms-2">
+                                Prazo: {{ emprestimo.data_prevista|date:"d/m/Y" }}
+                            </small>
+                        </a>
+                    {% empty %}
+                        <div class="empty-state">
+                            <i class="bi bi-calendar-x" aria-hidden="true"></i>
+                            <strong>Nenhum empréstimo encontrado.</strong>
+                        </div>
+                    {% endfor %}
+                </section>
+            </div>
         {% endif %}
     </div>
-</div>
+
+    {% if not perms.alunos.view_aluno and not perms.livros.view_livro and not perms.emprestimos.view_emprestimo %}
+        <div class="panel">
+            <div class="empty-state">
+                <i class="bi bi-shield-lock" aria-hidden="true"></i>
+                <strong>Você não possui permissão para consultar estes registros.</strong>
+            </div>
+        </div>
+    {% endif %}
+{% endif %}
 {% endblock %}

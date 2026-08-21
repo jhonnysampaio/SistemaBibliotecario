@@ -5,6 +5,14 @@ from .validators import somente_digitos
 
 
 class AlunoForm(forms.ModelForm):
+    cpf = forms.CharField(
+        label="CPF",
+        max_length=14,
+        widget=forms.TextInput(
+            attrs={"placeholder": "000.000.000-00"}
+        ),
+    )
+
     class Meta:
         model = Aluno
 
@@ -21,7 +29,6 @@ class AlunoForm(forms.ModelForm):
         ]
 
         widgets = {
-            "cpf": forms.TextInput(attrs={"placeholder": "000.000.000-00"}),
             "telefone": forms.TextInput(
                 attrs={"placeholder": "(00) 00000-0000"}
             ),

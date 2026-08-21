@@ -1,45 +1,143 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Biblioteca</title>
+{% extends "base.html" %}
+{% load static %}
 
-    <!-- Bootstrap -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body class="bg-light">
+{% block title %}Visão geral | Biblioteca{% endblock %}
+{% block eyebrow %}Hoje{% endblock %}
+{% block page_title %}Visão geral{% endblock %}
 
-    <div class="container vh-100 d-flex justify-content-center align-items-center">
-        <div class="card shadow p-5 text-center" style="width: 450px;">
+{% block page_description %}
+<p class="text-muted mb-0">
+    Acompanhe o acervo e os prazos mais importantes.
+</p>
+{% endblock %}
 
-            <h2 class="mb-4">Sistema de Biblioteca</h2>
+{% block page_actions %}
+    {% if perms.emprestimos.add_emprestimo %}
+        <a class="btn btn-primary" href="{% url 'emprestimos:novo' %}">
+            <i class="bi bi-plus-lg" aria-hidden="true"></i>
+            Novo empréstimo
+        </a>
+    {% endif %}
+{% endblock %}
 
-            <div class="d-grid gap-3">
-                <a href="{% url 'livros:criar' %}" class="btn btn-primary btn-lg">
-                    📚 Cadastrar Livros
-                </a>
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
 
-                <a href="{% url 'livros:lista' %}" class="btn btn-success btn-lg">
-                    📖 Listar Livros
-                </a> 
-                <a href="{% url 'alunos:criar' %}" class="btn btn-primary btn-lg">
-                    Cadastrar Alunos
-                </a>
+{% block content %}
+<section class="metrics-grid" aria-label="Indicadores">
+    <article class="metric-card">
+        <span>Títulos ativos</span>
+        <strong>{{ metricas.titulos }}</strong>
+    </article>
 
-                <a href="{% url 'alunos:lista' %}" class="btn btn-success btn-lg">
-                    Listar Alunos
-                </a>
-                <a href="{% url 'emprestimos:novo' %}" class="btn btn-primary btn-lg">
-                    Novo Empréstimo
-                </a>
-                <a href="{% url 'emprestimos:lista' %}" class="btn btn-success btn-lg">
-                    Listar Empréstimos
-                </a>
+    <article class="metric-card">
+        <span>Exemplares</span>
+        <strong>{{ metricas.exemplares }}</strong>
+    </article>
+
+    <article class="metric-card">
+        <span>Disponíveis</span>
+        <strong>{{ metricas.disponiveis }}</strong>
+    </article>
+
+    <article class="metric-card">
+        <span>Empréstimos abertos</span>
+        <strong>{{ metricas.abertos }}</strong>
+    </article>
+
+    <article class="metric-card metric-card-alert">
+        <span>Atrasados</span>
+        <strong>{{ metricas.atrasados }}</strong>
+    </article>
+</section>
+
+<div class="row g-4 mt-1">
+    <div class="col-12 col-xl-8">
+        <section class="panel panel-body h-100">
+            <div class="d-flex justify-content-between">
+                <h2 class="h5">Movimento nos últimos 7 dias</h2>
             </div>
 
-        </div>
+            <div class="chart-wrap">
+                <canvas
+                    id="loans-chart"
+                    role="img"
+                    aria-label="Quantidade de empréstimos nos últimos sete dias"
+                ></canvas>
+            </div>
+        </section>
     </div>
 
-</body>
-</html>
+    <div class="col-12 col-xl-4">
+        <section class="panel panel-body h-100">
+            <h2 class="h5">Prazos próximos</h2>
+
+            {% for emprestimo in proximos %}
+                <a
+                    class="deadline-item"
+                    href="{% url 'emprestimos:detalhe' emprestimo.pk %}"
+                >
+                    <span>
+                        {{ emprestimo.aluno.nome }}
+                        <small>{{ emprestimo.livro.titulo }}</small>
+                    </span>
+
+                    <strong>{{ emprestimo.data_prevista|date:"d/m" }}</strong>
+                </a>
+            {% empty %}
+                <div class="empty-state py-4">
+                    Nenhum prazo nos próximos dois dias.
+                </div>
+            {% endfor %}
+        </section>
+    </div>
+</div>
+
+<section class="panel mt-4">
+    <div class="panel-body border-bottom">
+        <h2 class="h5 mb-0">Atividade recente</h2>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Aluno</th>
+                    <th>Livro</th>
+                    <th>Prazo</th>
+                    <th>Situação</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for emprestimo in recentes %}
+                    <tr>
+                        <td>{{ emprestimo.aluno.nome }}</td>
+                        <td>
+                            <a href="{% url 'emprestimos:detalhe' emprestimo.pk %}">
+                                {{ emprestimo.livro.titulo }}
+                            </a>
+                        </td>
+                        <td>{{ emprestimo.data_prevista|date:"d/m/Y" }}</td>
+                        <td>{{ emprestimo.get_situacao_display }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="4" class="empty-state">
+                            Nenhuma atividade.
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+{{ grafico_labels|json_script:"grafico-labels" }}
+{{ grafico_valores|json_script:"grafico-valores" }}
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.9/dist/chart.umd.min.js"></script>
+<script src="{% static 'js/dashboard.js' %}"></script>
+{% endblock %}

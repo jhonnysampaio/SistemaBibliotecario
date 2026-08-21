@@ -1,0 +1,64 @@
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.metric-card {
+    min-height: 132px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 1.2rem;
+    border: 1px solid var(--line);
+    border-radius: 1rem;
+    background: var(--paper);
+    box-shadow: var(--shadow);
+}
+
+.metric-card span {
+    color: var(--muted);
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.metric-card strong {
+    color: var(--forest-800);
+    font-family: "Lora", serif;
+    font-size: 2.25rem;
+}
+
+.metric-card-alert strong {
+    color: var(--danger);
+}
+
+.chart-wrap {
+    min-height: 280px;
+}
+
+.deadline-item {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.85rem 0;
+    border-bottom: 1px solid var(--line);
+    color: var(--ink);
+    text-decoration: none;
+}
+
+.deadline-item small {
+    display: block;
+    color: var(--muted);
+}
+
+@media (max-width: 1199.98px) {
+    .metrics-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 575.98px) {
+    .metrics-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}

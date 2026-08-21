@@ -7,6 +7,27 @@ from .models import Aluno
 
 
 class AlunoFormTests(TestCase):
+    def test_aceita_cpf_formatado_e_salva_somente_digitos(self):
+        form = AlunoForm(
+            data={
+                "matricula": "2026002",
+                "nome": "Marina Alves",
+                "serie": "8º",
+                "turma": "A",
+                "turno": "M",
+                "cpf": "529.982.247-25",
+                "telefone": "",
+                "email": "",
+                "ativo": True,
+            }
+        )
+
+        self.assertTrue(form.is_valid(), form.errors)
+
+        aluno = form.save()
+
+        self.assertEqual(aluno.cpf, "52998224725")
+
     def test_rejeita_cpf_invalido(self):
         form = AlunoForm(
             data={
