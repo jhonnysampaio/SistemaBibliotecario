@@ -135,6 +135,24 @@
                     >
                 </form>
 
+                <a
+                    class="icon-button position-relative"
+                    href="{% url 'notificacoes:lista' %}"
+                    title="Notificações"
+                    aria-label="Notificações{% if total_notificacoes_nao_lidas %}: {{ total_notificacoes_nao_lidas }} não lida{{ total_notificacoes_nao_lidas|pluralize:'s' }}{% endif %}"
+                >
+                    <i class="bi bi-bell" aria-hidden="true"></i>
+
+                    {% if total_notificacoes_nao_lidas %}
+                        <span
+                            class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                            aria-hidden="true"
+                        >
+                            {{ total_notificacoes_nao_lidas }}
+                        </span>
+                    {% endif %}
+                </a>
+
                 <button
                     class="icon-button"
                     id="theme-toggle"

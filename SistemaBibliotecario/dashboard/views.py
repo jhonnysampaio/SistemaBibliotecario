@@ -8,12 +8,14 @@ from alunos.models import Aluno
 from emprestimos.models import Emprestimo
 from emprestimos.services import atualizar_atrasos
 from livros.models import Livro
+from notificacoes.services import gerar_alertas_para
 
 # Create your views here.
 
 @permission_required("emprestimos.view_emprestimo", raise_exception=True)
 def dashboard(request):
     atualizar_atrasos()
+    gerar_alertas_para(request.user)
     hoje = timezone.localdate()
     inicio = hoje - timedelta(days=6)
 

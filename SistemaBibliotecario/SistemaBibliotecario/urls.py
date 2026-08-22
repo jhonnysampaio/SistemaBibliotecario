@@ -33,4 +33,5 @@ urlpatterns = [
     path("dashboard/", include("dashboard.urls")),
     path("emprestimos/", include("emprestimos.urls")),
     path("", include("core.urls")),
+    path("notificacoes/", include("notificacoes.urls")),
 ]
