@@ -1,6 +1,7 @@
 from django import forms
 
 from .models import Categoria, Livro
+from .services import preparar_livro_com_estoque, salvar_livro_com_estoque
 from .validators import normalizar_isbn
 
 
@@ -77,20 +78,10 @@ class LivroForm(forms.ModelForm):
     def save(self, commit=True):
         livro = super().save(commit=False)
 
-        if livro.pk:
-            original = Livro.objects.get(pk=livro.pk)
-            emprestados = (
-                original.quantidade_total
-                - original.quantidade_disponivel
-            )
-            livro.quantidade_disponivel = (
-                livro.quantidade_total - emprestados
-            )
-        else:
-            livro.quantidade_disponivel = livro.quantidade_total
-
         if commit:
-            livro.save()
+            salvar_livro_com_estoque(livro=livro)
             self.save_m2m()
+        else:
+            preparar_livro_com_estoque(livro=livro)
 
         return livro

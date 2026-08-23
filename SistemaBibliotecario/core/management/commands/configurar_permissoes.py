@@ -15,6 +15,9 @@ class Command(BaseCommand):
             Permission.objects.filter(
                 Q(content_type__app_label__in=apps)
                 | Q(codename__in=("view_user", "add_user", "change_user"))
+            ).exclude(
+                content_type__app_label="emprestimos",
+                codename="delete_emprestimo",
             )
         )
 

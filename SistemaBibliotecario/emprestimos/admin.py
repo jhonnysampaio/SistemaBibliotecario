@@ -28,4 +28,5 @@ class EmprestimoAdmin(admin.ModelAdmin):
         "atualizado_em",
     )
 
-    
+    def has_delete_permission(self, request, obj=None):
+        return False

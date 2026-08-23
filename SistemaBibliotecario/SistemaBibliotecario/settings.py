@@ -143,3 +143,21 @@ LOGOUT_REDIRECT_URL = "usuarios:login"
 
 # Mantém as chaves primárias automáticas compatíveis com as migrações iniciais.
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+CSRF_TRUSTED_ORIGINS = [
+    origem.strip()
+    for origem in os.environ.get(
+        "DJANGO_CSRF_TRUSTED_ORIGINS",
+        "",
+    ).split(",")
+    if origem.strip()
+]
+
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = 3600
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    X_FRAME_OPTIONS = "DENY"

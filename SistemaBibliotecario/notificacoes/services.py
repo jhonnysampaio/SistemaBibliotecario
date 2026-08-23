@@ -2,13 +2,11 @@ from datetime import timedelta
 from django.db.models import Q
 from django.utils import timezone
 from emprestimos.models import Emprestimo
-from emprestimos.services import atualizar_atrasos
 from .models import Notificacao
 
 def gerar_alertas_para(usuario):
     if not usuario.has_perm("emprestimos.view_emprestimo"):
         return
-    atualizar_atrasos()
     hoje = timezone.localdate()
     limite = hoje + timedelta(days=2)
     do_usuario = Q(registrado_por=usuario)  | Q(registrado_por__isnull=True)

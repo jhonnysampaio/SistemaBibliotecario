@@ -71,19 +71,27 @@ class NotificacaoInterfaceTests(TestCase):
         self.assertContains(response, reverse("notificacoes:lista"))
         self.assertContains(response, "Notificações: 1 não lida")
 
-    def test_lista_gera_e_renderiza_alerta(self):
+    def test_lista_nao_gera_alerta_durante_get(self):
         response = self.client.get(reverse("notificacoes:lista"))
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Devolução próxima")
-        self.assertContains(response, self.aluno.nome)
-        self.assertEqual(Notificacao.objects.count(), 1)
+        self.assertEqual(Notificacao.objects.count(), 0)
+
+    def test_dashboard_nao_gera_alerta_durante_get(self):
+        response = self.client.get(reverse("dashboard:inicio"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Notificacao.objects.count(), 0)
 
     def test_rotina_nao_duplica_alerta(self):
         gerar_alertas_para(self.user)
         gerar_alertas_para(self.user)
 
         self.assertEqual(Notificacao.objects.count(), 1)
+        self.assertEqual(
+            Notificacao.objects.get().tipo,
+            Notificacao.Tipo.PRAZO,
+        )
 
     def test_comando_sincroniza_alertas_para_usuarios_ativos(self):
         saida = StringIO()
@@ -95,3 +103,58 @@ class NotificacaoInterfaceTests(TestCase):
             "Alertas verificados para 1 usuário(s).",
             saida.getvalue(),
         )
+
+    def test_comando_atualiza_atrasos_antes_de_gerar_alertas(self):
+        hoje = timezone.localdate()
+        Emprestimo.objects.filter(pk=self.emprestimo.pk).update(
+            data_inicio=hoje - timedelta(days=2),
+            data_prevista=hoje - timedelta(days=1),
+        )
+
+        call_command("sincronizar_alertas", stdout=StringIO())
+
+        self.emprestimo.refresh_from_db()
+        self.assertEqual(
+            self.emprestimo.situacao,
+            Emprestimo.Situacao.ATRASADO,
+        )
+        self.assertTrue(
+            Notificacao.objects.filter(
+                emprestimo=self.emprestimo,
+                tipo=Notificacao.Tipo.ATRASO,
+            ).exists()
+        )
+
+    def test_devolucao_fecha_visualmente_o_alerta(self):
+        gerar_alertas_para(self.user)
+        self.emprestimo.situacao = Emprestimo.Situacao.DEVOLVIDO
+        self.emprestimo.data_devolucao = timezone.localdate()
+        self.emprestimo.save(
+            update_fields=["situacao", "data_devolucao"]
+        )
+
+        gerar_alertas_para(self.user)
+
+        notificacao = Notificacao.objects.get()
+        self.assertTrue(notificacao.lida)
+
+    def test_usuario_nao_pode_marcar_alerta_de_outro_usuario(self):
+        outro_usuario = User.objects.create_user(
+            "outro-usuario",
+            password="senha-forte-123",
+        )
+        notificacao = Notificacao.objects.create(
+            usuario=outro_usuario,
+            emprestimo=self.emprestimo,
+            tipo=Notificacao.Tipo.PRAZO,
+            titulo="Devolução próxima",
+            mensagem="Alerta pertencente a outro usuário.",
+        )
+
+        response = self.client.post(
+            reverse("notificacoes:marcar_lida", args=[notificacao.pk])
+        )
+
+        self.assertEqual(response.status_code, 404)
+        notificacao.refresh_from_db()
+        self.assertFalse(notificacao.lida)

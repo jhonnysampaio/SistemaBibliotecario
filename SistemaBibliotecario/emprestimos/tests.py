@@ -1,4 +1,5 @@
 from datetime import timedelta
+from django.contrib import admin
 from django.contrib.auth.models import Permission, User
 from django.test import TestCase
 from django.utils import timezone
@@ -7,14 +8,16 @@ from livros.models import Categoria, Livro
 from .models import Emprestimo
 from .services import(
     RegraEmprestimoError,
+    atualizar_atrasos,
     devolver_emprestimo,
     registrar_emprestimo,
     renovar_emprestimo,
 )
+from django.urls import reverse
 
 # Create your tests here.
 
-class EmprestimoServiceTest(TestCase):
+class EmprestimoServiceTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user("biblioteca", password="senha-forte")
         self.aluno = Aluno.objects.create(
@@ -83,3 +86,138 @@ class EmprestimoServiceTest(TestCase):
         emprestimo = renovar_emprestimo(emprestimo=emprestimo)
         self.assertEqual(emprestimo.data_prevista, prazo_antigo + timedelta(days=7))
         self.assertEqual(emprestimo.renovacoes, 1)
+
+    def test_ultimo_exemplar_nao_pode_ser_emprestado_duas_vezes(self):
+        self.registrar()
+        outro_aluno = Aluno.objects.create(
+            matricula="2026002",
+            nome="Outro aluno",
+            serie="1°",
+            turma="B",
+            turno="V",
+            cpf="11144477735",
+        )
+
+        with self.assertRaises(RegraEmprestimoError):
+            registrar_emprestimo(
+                aluno=outro_aluno,
+                livro=self.livro,
+                data_prevista=timezone.localdate() + timedelta(days=7),
+                usuario=self.user,
+            )
+
+        self.assertEqual(Emprestimo.objects.count(), 1)
+
+    def test_terceira_renovacao_e_rejeitada(self):
+        emprestimo = self.registrar()
+        emprestimo = renovar_emprestimo(emprestimo=emprestimo)
+        emprestimo = renovar_emprestimo(emprestimo=emprestimo)
+
+        with self.assertRaises(RegraEmprestimoError):
+            renovar_emprestimo(emprestimo=emprestimo)
+
+        emprestimo.refresh_from_db()
+        self.assertEqual(emprestimo.renovacoes, 2)
+
+    def test_atraso_e_atualizado_pela_data(self):
+        emprestimo = self.registrar()
+        hoje = timezone.localdate()
+        Emprestimo.objects.filter(pk=emprestimo.pk).update(
+            data_inicio=hoje - timedelta(days=2),
+            data_prevista=hoje - timedelta(days=1),
+        )
+
+        atualizados = atualizar_atrasos()
+
+        emprestimo.refresh_from_db()
+        self.assertEqual(atualizados, 1)
+        self.assertEqual(emprestimo.situacao, Emprestimo.Situacao.ATRASADO)
+
+    def test_datas_impossiveis_sao_rejeitadas(self):
+        with self.assertRaises(RegraEmprestimoError):
+            registrar_emprestimo(
+                aluno=self.aluno,
+                livro=self.livro,
+                data_prevista=timezone.localdate() - timedelta(days=1),
+                usuario=self.user,
+            )
+
+        emprestimo = self.registrar()
+        with self.assertRaises(RegraEmprestimoError):
+            devolver_emprestimo(
+                emprestimo=emprestimo,
+                data_devolucao=emprestimo.data_inicio - timedelta(days=1),
+            )
+
+class FluxoEmprestimoViewTests(EmprestimoServiceTests):
+    def setUp(self):
+        super().setUp()
+        permissoes = Permission.objects.filter(
+            codename__in=(
+                "add_emprestimo",
+                "view_emprestimo",
+                "pode_devolver_emprestimo",
+                "pode_renovar_emprestimo",
+            )
+        )
+        self.user.user_permissions.set(permissoes)
+        self.client.force_login(self.user)
+
+    def test_fluxo_web_emprestar_e_devolver(self):
+        response = self.client.post(
+            reverse("emprestimos:novo"),
+            {
+                "aluno": self.aluno.pk,
+                "livro": self.livro.pk,
+                "data_prevista": (
+                    timezone.localdate() + timedelta(days=7)
+                ).isoformat(),
+                "observacoes": "",
+            },
+        )
+        emprestimo = Emprestimo.objects.get()
+        self.assertRedirects(
+            response,
+            reverse("emprestimos:detalhe", args=[emprestimo.pk]),
+        )
+
+        response = self.client.post(
+            reverse("emprestimos:devolver", args=[emprestimo.pk]),
+        )
+        self.assertRedirects(
+            response,
+            reverse("emprestimos:detalhe", args=[emprestimo.pk]),
+        )
+        emprestimo.refresh_from_db()
+        self.assertEqual(
+            emprestimo.situacao,
+            emprestimo.Situacao.DEVOLVIDO,
+        )
+
+    def test_por_devolucao_get_retorna_405(self):
+        emprestimo = self.registrar()
+        response = self.client.get(
+            reverse("emprestimos:devolver", args=[emprestimo.pk])
+        )
+        self.assertEqual(response.status_code, 405)
+
+    def test_lista_por_get_nao_atualiza_atrasos(self):
+        emprestimo = self.registrar()
+        hoje = timezone.localdate()
+        Emprestimo.objects.filter(pk=emprestimo.pk).update(
+            data_inicio=hoje - timedelta(days=2),
+            data_prevista=hoje - timedelta(days=1),
+        )
+
+        response = self.client.get(reverse("emprestimos:lista"))
+
+        self.assertEqual(response.status_code, 200)
+        emprestimo.refresh_from_db()
+        self.assertEqual(emprestimo.situacao, Emprestimo.Situacao.ATIVO)
+
+
+class EmprestimoAdminTests(TestCase):
+    def test_admin_nao_permite_excluir_emprestimos(self):
+        model_admin = admin.site._registry[Emprestimo]
+
+        self.assertFalse(model_admin.has_delete_permission(request=None))

@@ -3,13 +3,11 @@ from django.core.paginator import Paginator
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.decorators.http import require_POST
 from .models import Notificacao
-from .services import gerar_alertas_para
 
 # Create your views here.
 
 @login_required
 def lista(request):
-    gerar_alertas_para(request.user)
     notificacoes = request.user.notificacoes.select_related(
         "emprestimo",
         "emprestimo__aluno",

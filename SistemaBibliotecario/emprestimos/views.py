@@ -9,7 +9,6 @@ from .forms import EmprestimoForm
 from .models import Emprestimo
 from .services import (
     RegraEmprestimoError,
-    atualizar_atrasos,
     devolver_emprestimo,
     registrar_emprestimo,
     renovar_emprestimo,
@@ -18,7 +17,6 @@ from .services import (
 
 @permission_required("emprestimos.view_emprestimo", raise_exception=True)
 def lista(request):
-    atualizar_atrasos()
     q = request.GET.get("q", "").strip()
     situacao = request.GET.get("situacao", "abertos")
     emprestimos = Emprestimo.objects.select_related("aluno", "livro")

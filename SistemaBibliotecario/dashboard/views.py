@@ -2,20 +2,17 @@ from datetime import timedelta
 from django.db.models import Count, Sum
 from django.db.models.functions import Coalesce
 from django.shortcuts import render
-from django.contrib.auth.decorators import permission_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.utils import timezone
 from alunos.models import Aluno
 from emprestimos.models import Emprestimo
-from emprestimos.services import atualizar_atrasos
 from livros.models import Livro
-from notificacoes.services import gerar_alertas_para
 
 # Create your views here.
 
+@login_required
 @permission_required("emprestimos.view_emprestimo", raise_exception=True)
 def dashboard(request):
-    atualizar_atrasos()
-    gerar_alertas_para(request.user)
     hoje = timezone.localdate()
     inicio = hoje - timedelta(days=6)
 
