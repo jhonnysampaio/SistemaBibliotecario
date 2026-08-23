@@ -11,5 +11,4 @@ class PerfilAdmin(admin.ModelAdmin):
         "usuario__username",
         "usuario__first_name",
         "usuario__last_name",
-        "usuario__email",
     )

@@ -11,12 +11,7 @@ class AlunoAdmin(admin.ModelAdmin):
         "serie",
         "turma",
         "turno",
-        "cpf",
-        "telefone",
-        "email",
         "ativo",
-        "criado_em",
-        "atualizado_em"
     )
     list_filter = ("serie", "turno", "ativo")
     search_fields = ("matricula", "nome", "cpf")
