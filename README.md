@@ -54,11 +54,7 @@ python SistemaBibliotecario\manage.py check
 python SistemaBibliotecario\manage.py makemigrations --check --dry-run
 ```
 
-O banco `db.sqlite3`, o ambiente virtual e os caches do Python são arquivos
-locais e não devem ser enviados ao Git.
-
 ## Escopo desta versão
 
 Esta é uma base didática. Autenticação, permissões, regras de empréstimo,
-estoque, testes e preparação para produção serão aprimorados gradualmente no
-tutorial.
+estoque, testes e preparação para produção serão aprimorados gradualmente ao projeto.
