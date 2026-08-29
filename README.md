@@ -1,7 +1,8 @@
 # Sistema Bibliotecário
 
-Versão inicial de um sistema de biblioteca escolar desenvolvido com Django.
-Este repositório é o ponto de partida do tutorial de evolução do projeto.
+Sistema de gestão de biblioteca escolar desenvolvido com Django. Inclui
+cadastros, circulação, controle de estoque, perfis de acesso, dashboard,
+pesquisa global, alertas internos e verificações de integridade.
 
 ## Requisitos
 
@@ -20,7 +21,7 @@ cd SistemaBibliotecario
 Crie e ative um ambiente virtual:
 
 ```powershell
-py -m venv .venv
+py -3.12 -m venv .venv
 .\.venv\Scripts\Activate.ps1
 ```
 
@@ -28,37 +29,74 @@ Instale a dependência do projeto:
 
 ```powershell
 python -m pip install --upgrade pip
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 ```
 
-Prepare o banco de dados local:
+Entre na pasta da aplicação, onde está o `manage.py`:
 
 ```powershell
-python SistemaBibliotecario\manage.py migrate
+Set-Location .\SistemaBibliotecario
+```
+
+Prepare o banco, os grupos e as permissões:
+
+```powershell
+python manage.py migrate
+python manage.py configurar_permissoes
+```
+
+Crie o administrador local quando o comando solicitar os dados:
+
+```powershell
+python manage.py createsuperuser
+```
+
+Carregue os dados de demonstração e gere os alertas internos iniciais:
+
+```powershell
+python manage.py seed
+python manage.py sincronizar_alertas
 ```
 
 Inicie o servidor de desenvolvimento:
 
 ```powershell
-python SistemaBibliotecario\manage.py runserver
+python manage.py runserver
 ```
 
 Abra `http://127.0.0.1:8000/auth/login/` no navegador.
 
-## Verificação rápida
+## Verificação final
 
 Antes de começar uma etapa do tutorial, execute:
 
 ```powershell
-python SistemaBibliotecario\manage.py check
-python SistemaBibliotecario\manage.py makemigrations --check --dry-run
+python manage.py makemigrations --check --dry-run
+python manage.py showmigrations
+python manage.py migrate --plan
+python manage.py verificar_integridade
+python manage.py check
+python manage.py test
 ```
+
+O resultado esperado é: migrações aplicadas, nenhum plano pendente,
+integridade confirmada, nenhuma nova migração detectada e testes aprovados.
+
+## Rotina operacional
+
+Execute periodicamente o comando abaixo (por exemplo, pelo Agendador de
+Tarefas do Windows) para atualizar atrasos e criar alertas sem duplicá-los:
+
+```powershell
+python manage.py sincronizar_alertas
+```
+
+O sistema usa apenas alertas internos; esse comando não envia e-mail, SMS ou
+mensagens para serviços externos.
 
 O banco `db.sqlite3`, o ambiente virtual e os caches do Python são arquivos
 locais e não devem ser enviados ao Git.
 
-## Escopo desta versão
-
-Esta é uma base didática. Autenticação, permissões, regras de empréstimo,
-estoque, testes e preparação para produção serão aprimorados gradualmente no
-tutorial.
+Para uma publicação real, defina `DJANGO_SECRET_KEY`, `DJANGO_DEBUG=False`,
+`DJANGO_ALLOWED_HOSTS` e, quando houver HTTPS, as origens confiáveis de CSRF.
+Não reutilize credenciais ou o banco de demonstração em produção.
