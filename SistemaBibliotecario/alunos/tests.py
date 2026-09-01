@@ -11,7 +11,7 @@ from emprestimos.models import Emprestimo
 from livros.models import Categoria, Livro
 
 from .forms import AlunoForm
-from .models import Aluno
+from .models import Aluno, HistoricoProgressao
 
 
 class AlunoFormTests(TestCase):
@@ -199,3 +199,77 @@ class AlunoViewTests(TestCase):
         form = EmprestimoForm()
 
         self.assertNotIn(self.aluno, form.fields["aluno"].queryset)
+
+    def test_fechamento_ano_letivo_exige_login(self):
+        response = self.client.get(
+            reverse("alunos:fechamento_ano_letivo")
+        )
+
+        self.assertEqual(response.status_code, 302)
+
+    def test_fechamento_ano_letivo_exige_permissao(self):
+        self.client.force_login(self.user)
+
+        response = self.client.get(
+            reverse("alunos:fechamento_ano_letivo")
+        )
+
+        self.assertEqual(response.status_code, 403)
+
+    def test_fechamento_ano_letivo_exibe_previa(self):
+        permission = Permission.objects.get(codename="change_aluno")
+        self.user.user_permissions.add(permission)
+        self.client.force_login(self.user)
+
+        response = self.client.get(
+            reverse("alunos:fechamento_ano_letivo")
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Fechamento do ano letivo")
+        self.assertContains(response, "Nenhuma pendência encontrada")
+
+    def test_fechamento_invalido_preserva_erros_do_formulario(self):
+        permission = Permission.objects.get(codename="change_aluno")
+        self.user.user_permissions.add(permission)
+        self.client.force_login(self.user)
+
+        response = self.client.post(
+            reverse("alunos:fechamento_ano_letivo"),
+            {"ano_destino": timezone.localdate().year + 1},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Este campo é obrigatório")
+        self.assertFalse(HistoricoProgressao.objects.exists())
+
+    def test_fechamento_valido_atualiza_aluno_e_registra_historico(self):
+        permission = Permission.objects.get(codename="change_aluno")
+        self.user.user_permissions.add(permission)
+        self.client.force_login(self.user)
+        self.aluno.serie = "1º ano"
+        self.aluno.ano_letivo = timezone.localdate().year
+        self.aluno.save(update_fields=["serie", "ano_letivo"])
+        ano_destino = timezone.localdate().year + 1
+
+        response = self.client.post(
+            reverse("alunos:fechamento_ano_letivo"),
+            {"ano_destino": ano_destino, "confirmar": "on"},
+        )
+
+        self.assertRedirects(
+            response,
+            reverse("alunos:fechamento_ano_letivo"),
+        )
+        self.aluno.refresh_from_db()
+        self.assertEqual(self.aluno.serie, "2º ano")
+        self.assertEqual(self.aluno.ano_letivo, ano_destino)
+        self.assertTrue(
+            HistoricoProgressao.objects.filter(
+                aluno=self.aluno,
+                ano_destino=ano_destino,
+                serie_anterior="1º ano",
+                serie_nova="2º ano",
+                registrado_por=self.user,
+            ).exists()
+        )

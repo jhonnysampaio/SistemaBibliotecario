@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     "livros",
     "core",
     "notificacoes",
+    "comunicacoes.apps.ComunicacoesConfig",
 ]
 
 MIDDLEWARE = [

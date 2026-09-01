@@ -49,7 +49,7 @@ class Command(BaseCommand):
             {
                 "matricula": "2026001",
                 "nome": "Marina Alves",
-                "serie": "8º ano",
+                "serie": "1º ano",
                 "turma": "A",
                 "turno": "M",
                 "cpf": "52998224725",
@@ -57,7 +57,7 @@ class Command(BaseCommand):
             {
                 "matricula": "2026002",
                 "nome": "Pedro Santos",
-                "serie": "9º ano",
+                "serie": "2º ano",
                 "turma": "B",
                 "turno": "V",
                 "cpf": "11144477735",
