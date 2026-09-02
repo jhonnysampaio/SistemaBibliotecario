@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     "core",
     "notificacoes",
     "comunicacoes.apps.ComunicacoesConfig",
+    "reservas.apps.ReservasConfig",
 ]
 
 MIDDLEWARE = [

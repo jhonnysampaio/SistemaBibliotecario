@@ -66,6 +66,13 @@
                     <span>Empréstimos</span>
                 </a>
 
+                {% if perms.reservas.view_reserva %}
+                    <a href="{% url 'reservas:lista' %}">
+                        <i class="bi bi-bookmark-check" aria-hidden="true"></i>
+                        <span>Reservas</span>
+                    </a>
+                {% endif %}
+
                 <a href="{% url 'emprestimos:historico' %}">
                     <i class="bi bi-clock-history"></i>
                     <span>Histórico</span>
