@@ -1,58 +1,998 @@
 {% extends "base.html" %}
 
-{% block title %}{{ titulo }} | Biblioteca{% endblock %}
-{% block eyebrow %}Acervo{% endblock %}
-{% block page_title %}{{ titulo }}{% endblock %}
+{% block title %}
+Cadastrar livro | Biblioteca Escolar
+{% endblock %}
+
+{% block eyebrow %}
+Acervo
+{% endblock %}
+
+{% block page_title %}
+Cadastrar livro
+{% endblock %}
+
+{% block page_description %}
+Cadastre um novo livro no acervo da biblioteca.
+{% endblock %}
+
+
+{% block extra_css %}
+
+<style>
+
+    /*
+    =========================================================
+    SELECT PESQUISÁVEL
+    =========================================================
+    */
+
+    .searchable-select-wrapper {
+        position: relative;
+        width: 100%;
+    }
+
+    .searchable-select-input-wrapper {
+        position: relative;
+    }
+
+    .searchable-select-input {
+        width: 100%;
+        min-height: 46px;
+
+        padding: 10px 42px 10px 14px;
+
+        border: 1px solid var(--bs-border-color);
+        border-radius: 8px;
+
+        background-color: var(--bs-body-bg);
+        color: var(--bs-body-color);
+
+        font-size: 0.95rem;
+
+        transition:
+            border-color 0.15s ease-in-out,
+            box-shadow 0.15s ease-in-out;
+    }
+
+    .searchable-select-input:focus {
+        outline: none;
+
+        border-color: #86b7fe;
+
+        box-shadow:
+            0 0 0 0.25rem
+            rgba(13, 110, 253, 0.25);
+    }
+
+    .searchable-select-icon {
+
+        position: absolute;
+
+        right: 14px;
+        top: 50%;
+
+        transform:
+            translateY(-50%);
+
+        pointer-events: none;
+
+        color:
+            var(--bs-secondary-color);
+
+        transition:
+            transform 0.2s ease;
+    }
+
+    .searchable-select-wrapper.open
+    .searchable-select-icon {
+
+        transform:
+            translateY(-50%)
+            rotate(180deg);
+    }
+
+
+    /*
+    =========================================================
+    DROPDOWN
+    =========================================================
+    */
+
+    .searchable-select-dropdown {
+
+        display: none;
+
+        position: absolute;
+
+        top: calc(100% + 5px);
+
+        left: 0;
+        right: 0;
+
+        z-index: 1050;
+
+        max-height: 280px;
+
+        overflow-y: auto;
+
+        border:
+            1px solid
+            var(--bs-border-color);
+
+        border-radius: 8px;
+
+        background-color:
+            var(--bs-body-bg);
+
+        box-shadow:
+            0 8px 24px
+            rgba(0, 0, 0, 0.15);
+    }
+
+    .searchable-select-wrapper.open
+    .searchable-select-dropdown {
+
+        display: block;
+    }
+
+
+    /*
+    =========================================================
+    OPÇÕES
+    =========================================================
+    */
+
+    .searchable-select-option {
+
+        padding: 11px 14px;
+
+        cursor: pointer;
+
+        color:
+            var(--bs-body-color);
+
+        border-bottom:
+            1px solid
+            var(--bs-border-color-translucent);
+
+        transition:
+            background-color 0.1s ease;
+    }
+
+    .searchable-select-option:last-child {
+        border-bottom: none;
+    }
+
+    .searchable-select-option:hover,
+    .searchable-select-option.active {
+
+        background-color:
+            var(--bs-secondary-bg);
+    }
+
+    .searchable-select-option.selected {
+
+        font-weight: 600;
+
+        color:
+            var(--bs-primary);
+    }
+
+
+    /*
+    =========================================================
+    SEM RESULTADOS
+    =========================================================
+    */
+
+    .searchable-select-empty {
+
+        display: none;
+
+        padding: 14px;
+
+        text-align: center;
+
+        color:
+            var(--bs-secondary-color);
+
+        font-size: 0.9rem;
+    }
+
+
+    /*
+    =========================================================
+    SELECT ORIGINAL
+    =========================================================
+    */
+
+    .django-original-select {
+
+        position: absolute !important;
+
+        width: 1px !important;
+        height: 1px !important;
+
+        padding: 0 !important;
+        margin: -1px !important;
+
+        overflow: hidden !important;
+
+        clip: rect(0, 0, 0, 0) !important;
+
+        white-space: nowrap !important;
+
+        border: 0 !important;
+    }
+
+
+    .livro-form-card {
+
+        max-width: 1100px;
+
+        margin: 0 auto;
+    }
+
+</style>
+
+{% endblock %}
+
 
 {% block content %}
-<form method="post" class="panel" novalidate>
-    {% csrf_token %}
 
-    <div class="panel-body">
-        <div class="alert alert-light border" role="note">
-            Informe a quantidade total. Os exemplares disponíveis são calculados
-            pelo sistema conforme empréstimos e devoluções.
-        </div>
+<div class="card shadow-sm livro-form-card">
 
-        {% if form.non_field_errors %}
-            <div class="alert alert-danger" role="alert">
-                {{ form.non_field_errors }}
-            </div>
-        {% endif %}
+    <div class="card-body p-4">
 
-        <div class="row g-3">
-            {% for field in form %}
-                <div class="{% if field.name == 'titulo' or field.name == 'subtitulo' %}col-12 col-md-8{% else %}col-12 col-md-4{% endif %}">
-                    <label class="form-label" for="{{ field.id_for_label }}">
-                        {{ field.label }}
-                    </label>
+        <form method="post" novalidate>
 
-                    {{ field }}
+            {% csrf_token %}
 
-                    {% if field.help_text %}
-                        <div class="form-text">
-                            {{ field.help_text }}
-                        </div>
-                    {% endif %}
 
-                    {% for error in field.errors %}
-                        <div class="invalid-feedback d-block">
+            {% if form.non_field_errors %}
+
+                <div class="alert alert-danger">
+
+                    {% for error in form.non_field_errors %}
+
+                        <div>
                             {{ error }}
                         </div>
+
                     {% endfor %}
+
                 </div>
-            {% endfor %}
-        </div>
+
+            {% endif %}
+
+
+            <div class="row">
+
+
+                <!-- ISBN -->
+
+                <div class="col-md-6 mb-3">
+
+                    <label
+                        for="{{ form.isbn.id_for_label }}"
+                        class="form-label"
+                    >
+                        ISBN
+                    </label>
+
+                    {{ form.isbn }}
+
+                    {% for error in form.isbn.errors %}
+
+                        <div class="text-danger small mt-1">
+                            {{ error }}
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+
+                <!-- TÍTULO -->
+
+                <div class="col-md-6 mb-3">
+
+                    <label
+                        for="{{ form.titulo.id_for_label }}"
+                        class="form-label"
+                    >
+                        Título
+                    </label>
+
+                    {{ form.titulo }}
+
+                    {% for error in form.titulo.errors %}
+
+                        <div class="text-danger small mt-1">
+                            {{ error }}
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+
+                <!-- SUBTÍTULO -->
+
+                <div class="col-md-6 mb-3">
+
+                    <label
+                        for="{{ form.subtitulo.id_for_label }}"
+                        class="form-label"
+                    >
+                        Subtítulo
+                    </label>
+
+                    {{ form.subtitulo }}
+
+                    {% for error in form.subtitulo.errors %}
+
+                        <div class="text-danger small mt-1">
+                            {{ error }}
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+
+                <!-- AUTOR -->
+
+                <div class="col-md-6 mb-3">
+
+                    <label
+                        for="{{ form.autor.id_for_label }}"
+                        class="form-label"
+                    >
+                        Autor
+                    </label>
+
+                    {{ form.autor }}
+
+                    {% for error in form.autor.errors %}
+
+                        <div class="text-danger small mt-1">
+                            {{ error }}
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+
+                <!-- ANO -->
+
+                <div class="col-md-4 mb-3">
+
+                    <label
+                        for="{{ form.ano_publicacao.id_for_label }}"
+                        class="form-label"
+                    >
+                        Ano de publicação
+                    </label>
+
+                    {{ form.ano_publicacao }}
+
+                    {% for error in form.ano_publicacao.errors %}
+
+                        <div class="text-danger small mt-1">
+                            {{ error }}
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+
+                <!-- EDITORA -->
+
+                <div class="col-md-8 mb-3">
+
+                    <label
+                        for="{{ form.editora.id_for_label }}"
+                        class="form-label"
+                    >
+                        Editora
+                    </label>
+
+                    {{ form.editora }}
+
+                    {% for error in form.editora.errors %}
+
+                        <div class="text-danger small mt-1">
+                            {{ error }}
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+
+                <!-- CATEGORIA PESQUISÁVEL -->
+
+                <div class="col-md-6 mb-3">
+
+                    <label
+                        for="{{ form.categoria.id_for_label }}"
+                        class="form-label"
+                    >
+                        Categoria
+                    </label>
+
+                    {{ form.categoria }}
+
+                    {% for error in form.categoria.errors %}
+
+                        <div class="text-danger small mt-1">
+                            {{ error }}
+                        </div>
+
+                    {% endfor %}
+
+                    <div class="form-text">
+                        Digite para pesquisar uma categoria.
+                    </div>
+
+                </div>
+
+
+                <!-- CDD -->
+
+                <div class="col-md-6 mb-3">
+
+                    <label
+                        for="{{ form.cdd.id_for_label }}"
+                        class="form-label"
+                    >
+                        CDD
+                    </label>
+
+                    {{ form.cdd }}
+
+                    {% for error in form.cdd.errors %}
+
+                        <div class="text-danger small mt-1">
+                            {{ error }}
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+
+                <!-- LOCAL DA ESTANTE -->
+
+                <div class="col-md-8 mb-3">
+
+                    <label
+                        for="{{ form.local_estante.id_for_label }}"
+                        class="form-label"
+                    >
+                        Local na estante
+                    </label>
+
+                    {{ form.local_estante }}
+
+                    {% for error in form.local_estante.errors %}
+
+                        <div class="text-danger small mt-1">
+                            {{ error }}
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+
+                <!-- ETIQUETA -->
+
+                <div class="col-md-4 mb-3">
+
+                    <label
+                        for="{{ form.etiqueta.id_for_label }}"
+                        class="form-label"
+                    >
+                        Etiqueta
+                    </label>
+
+                    {{ form.etiqueta }}
+
+                    {% for error in form.etiqueta.errors %}
+
+                        <div class="text-danger small mt-1">
+                            {{ error }}
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+
+                <!-- QUANTIDADE -->
+
+                <div class="col-md-6 mb-3">
+
+                    <label
+                        for="{{ form.quantidade_total.id_for_label }}"
+                        class="form-label"
+                    >
+                        Quantidade total
+                    </label>
+
+                    {{ form.quantidade_total }}
+
+                    {% for error in form.quantidade_total.errors %}
+
+                        <div class="text-danger small mt-1">
+                            {{ error }}
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+
+                <!-- ATIVO -->
+
+                <div class="col-md-6 mb-3">
+
+                    <div class="form-check mt-4 pt-2">
+
+                        {{ form.ativo }}
+
+                        <label
+                            class="form-check-label"
+                            for="{{ form.ativo.id_for_label }}"
+                        >
+                            Livro ativo
+                        </label>
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+
+            <div class="d-flex gap-2 mt-3">
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+                    <i class="bi bi-book-plus me-1"></i>
+
+                    Cadastrar livro
+                </button>
+
+
+                <a
+                    href="{% url 'livros:lista' %}"
+                    class="btn btn-outline-secondary"
+                >
+                    Cancelar
+                </a>
+
+            </div>
+
+        </form>
+
     </div>
 
-    <div class="panel-body border-top d-flex justify-content-end gap-2">
-        <a class="btn btn-outline-secondary" href="{% url 'livros:lista' %}">
-            Cancelar
-        </a>
+</div>
 
-        <button class="btn btn-primary" type="submit">
-            Salvar livro
-        </button>
-    </div>
-</form>
+{% endblock %}
+
+
+
+{% block extra_js %}
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        function transformarEmSelectPesquisavel(
+            selectId,
+            placeholder,
+            mensagemSemResultado
+        ) {
+
+            const select =
+                document.getElementById(selectId);
+
+            if (!select) {
+
+                console.error(
+                    "Select não encontrado:",
+                    selectId
+                );
+
+                return;
+            }
+
+
+            const wrapper =
+                document.createElement("div");
+
+            wrapper.className =
+                "searchable-select-wrapper";
+
+
+            const inputWrapper =
+                document.createElement("div");
+
+            inputWrapper.className =
+                "searchable-select-input-wrapper";
+
+
+            const input =
+                document.createElement("input");
+
+            input.type = "text";
+
+            input.className =
+                "searchable-select-input";
+
+            input.placeholder =
+                placeholder;
+
+            input.autocomplete = "off";
+
+
+            const icon =
+                document.createElement("i");
+
+            icon.className =
+                "bi bi-chevron-down searchable-select-icon";
+
+
+            const dropdown =
+                document.createElement("div");
+
+            dropdown.className =
+                "searchable-select-dropdown";
+
+
+            const empty =
+                document.createElement("div");
+
+            empty.className =
+                "searchable-select-empty";
+
+            empty.textContent =
+                mensagemSemResultado;
+
+            dropdown.appendChild(empty);
+
+
+            select.parentNode.insertBefore(
+                wrapper,
+                select
+            );
+
+            wrapper.appendChild(
+                inputWrapper
+            );
+
+            inputWrapper.appendChild(
+                input
+            );
+
+            inputWrapper.appendChild(
+                icon
+            );
+
+            wrapper.appendChild(
+                dropdown
+            );
+
+            wrapper.appendChild(
+                select
+            );
+
+
+            select.classList.add(
+                "django-original-select"
+            );
+
+
+            const items = [];
+
+
+            Array.from(select.options)
+                .forEach(function (option) {
+
+                    if (!option.value) {
+                        return;
+                    }
+
+
+                    const item =
+                        document.createElement("div");
+
+                    item.className =
+                        "searchable-select-option";
+
+                    item.textContent =
+                        option.textContent.trim();
+
+                    item.dataset.value =
+                        option.value;
+
+                    item.dataset.search =
+                        removerAcentos(
+                            option.textContent
+                                .trim()
+                                .toLowerCase()
+                        );
+
+
+                    if (option.selected) {
+
+                        item.classList.add(
+                            "selected"
+                        );
+
+                        input.value =
+                            option.textContent.trim();
+                    }
+
+
+                    item.addEventListener(
+                        "click",
+                        function () {
+
+                            select.value =
+                                item.dataset.value;
+
+                            input.value =
+                                item.textContent;
+
+
+                            items.forEach(
+                                function (outroItem) {
+
+                                    outroItem
+                                        .classList
+                                        .remove(
+                                            "selected"
+                                        );
+
+                                }
+                            );
+
+
+                            item.classList.add(
+                                "selected"
+                            );
+
+
+                            wrapper
+                                .classList
+                                .remove(
+                                    "open"
+                                );
+
+
+                            select.dispatchEvent(
+                                new Event(
+                                    "change",
+                                    {
+                                        bubbles: true
+                                    }
+                                )
+                            );
+
+                        }
+                    );
+
+
+                    dropdown.insertBefore(
+                        item,
+                        empty
+                    );
+
+                    items.push(item);
+
+                });
+
+
+            input.addEventListener(
+                "focus",
+                function () {
+
+                    fecharTodos(
+                        wrapper
+                    );
+
+                    wrapper.classList.add(
+                        "open"
+                    );
+
+                    filtrar("");
+
+                }
+            );
+
+
+            input.addEventListener(
+                "click",
+                function () {
+
+                    wrapper.classList.add(
+                        "open"
+                    );
+
+                }
+            );
+
+
+            input.addEventListener(
+                "input",
+                function () {
+
+                    select.value = "";
+
+
+                    items.forEach(
+                        function (item) {
+
+                            item.classList.remove(
+                                "selected"
+                            );
+
+                        }
+                    );
+
+
+                    filtrar(
+                        input.value
+                    );
+
+
+                    wrapper.classList.add(
+                        "open"
+                    );
+
+                }
+            );
+
+
+            function filtrar(texto) {
+
+                const pesquisa =
+                    removerAcentos(
+                        texto
+                            .trim()
+                            .toLowerCase()
+                    );
+
+
+                let encontrados = 0;
+
+
+                items.forEach(
+                    function (item) {
+
+                        if (
+                            item.dataset.search.includes(
+                                pesquisa
+                            )
+                        ) {
+
+                            item.style.display =
+                                "block";
+
+                            encontrados++;
+
+                        } else {
+
+                            item.style.display =
+                                "none";
+
+                        }
+
+                    }
+                );
+
+
+                empty.style.display =
+                    encontrados === 0
+                        ? "block"
+                        : "none";
+
+            }
+
+        }
+
+
+        function removerAcentos(texto) {
+
+            return texto
+                .normalize("NFD")
+                .replace(
+                    /[\u0300-\u036f]/g,
+                    ""
+                );
+
+        }
+
+
+        function fecharTodos(exceto) {
+
+            document
+                .querySelectorAll(
+                    ".searchable-select-wrapper"
+                )
+                .forEach(
+                    function (wrapper) {
+
+                        if (wrapper !== exceto) {
+
+                            wrapper
+                                .classList
+                                .remove(
+                                    "open"
+                                );
+
+                        }
+
+                    }
+                );
+
+        }
+
+
+        document.addEventListener(
+            "click",
+            function (event) {
+
+                document
+                    .querySelectorAll(
+                        ".searchable-select-wrapper"
+                    )
+                    .forEach(
+                        function (wrapper) {
+
+                            if (
+                                !wrapper.contains(
+                                    event.target
+                                )
+                            ) {
+
+                                wrapper
+                                    .classList
+                                    .remove(
+                                        "open"
+                                    );
+
+                            }
+
+                        }
+                    );
+
+            }
+        );
+
+
+        transformarEmSelectPesquisavel(
+            "id_categoria",
+            "Digite para pesquisar uma categoria...",
+            "Nenhuma categoria encontrada."
+        );
+
+    }
+);
+
+</script>
+
 {% endblock %}
