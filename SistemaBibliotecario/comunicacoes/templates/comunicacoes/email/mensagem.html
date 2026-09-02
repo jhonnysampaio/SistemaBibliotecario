@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ titulo }}</title>
+</head>
+<body style="margin:0; padding:0; background-color:#f5f0e7; color:#21332d; font-family:'Segoe UI', Arial, sans-serif;">
+  <div style="display:none; max-height:0; overflow:hidden; opacity:0; color:transparent; line-height:1px; font-size:1px;">
+    {{ pre_cabecalho }}
+  </div>
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%; background-color:#f5f0e7;">
+    <tr>
+      <td align="center" style="padding:32px 12px;">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%; max-width:620px; background-color:#fffdf8; border:1px solid #e5ddcf; border-radius:18px; overflow:hidden; box-shadow:0 10px 30px rgba(15,48,41,0.08);">
+          <tr>
+            <td style="padding:26px 32px; background-color:#0f3029; border-bottom:4px solid #d5a447;">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                <tr>
+                  <td width="52" valign="middle">
+                    <div style="width:42px; height:42px; line-height:42px; text-align:center; background-color:#d5a447; color:#0f3029; border-radius:12px; font-family:Georgia, 'Times New Roman', serif; font-size:24px; font-weight:bold;">B</div>
+                  </td>
+                  <td valign="middle" style="padding-left:12px;">
+                    <div style="color:#fffdf8; font-family:Georgia, 'Times New Roman', serif; font-size:23px; font-weight:bold; line-height:1.2;">Biblioteca</div>
+                    <div style="padding-top:3px; color:#c9d7cf; font-size:12px; letter-spacing:1.4px; text-transform:uppercase;">Gestão escolar</div>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:36px 32px 10px;">
+              <div style="margin-bottom:10px; color:#769781; font-size:12px; font-weight:700; letter-spacing:1.4px; text-transform:uppercase;">{{ categoria }}</div>
+              <h1 style="margin:0; color:#173f35; font-family:Georgia, 'Times New Roman', serif; font-size:30px; line-height:1.2; font-weight:bold;">{{ titulo }}</h1>
+              {% if nome_aluno %}<p style="margin:22px 0 8px; color:#21332d; font-size:16px; line-height:1.6;">Olá, <strong>{{ nome_aluno }}</strong>!</p>{% endif %}
+              <p style="margin:{% if nome_aluno %}0{% else %}22px 0 0{% endif %}; color:#53635c; font-size:16px; line-height:1.65;">{{ texto|linebreaksbr }}</p>
+            </td>
+          </tr>
+          {% if detalhes %}
+          <tr>
+            <td style="padding:22px 32px 8px;">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%; border:1px solid #e5ddcf; border-radius:12px; border-collapse:separate; overflow:hidden;">
+                {% for detalhe in detalhes %}
+                <tr>
+                  <td valign="top" style="width:38%; padding:14px 16px; background-color:{% cycle '#f8f4ec' '#fffdf8' %}; {% if not forloop.last %}border-bottom:1px solid #e5ddcf;{% endif %} color:#68766f; font-size:13px; font-weight:700; line-height:1.4;">{{ detalhe.rotulo }}</td>
+                  <td valign="top" style="padding:14px 16px; background-color:{% cycle '#f8f4ec' '#fffdf8' %}; {% if not forloop.last %}border-bottom:1px solid #e5ddcf;{% endif %} color:#21332d; font-size:15px; line-height:1.4;">{{ detalhe.valor }}</td>
+                </tr>
+                {% endfor %}
+              </table>
+            </td>
+          </tr>
+          {% endif %}
+          {% if destaque_titulo or destaque_texto %}
+          <tr>
+            <td style="padding:18px 32px 36px;">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%; {% if tom == 'perigo' %}background-color:#f9e8e6; border-left:4px solid #b64a44;{% elif tom == 'aviso' %}background-color:#fbf2df; border-left:4px solid #d5a447;{% elif tom == 'sucesso' %}background-color:#eaf2ec; border-left:4px solid #769781;{% else %}background-color:#edf3ef; border-left:4px solid #245647;{% endif %} border-radius:8px;">
+                <tr>
+                  <td style="padding:16px 18px;">
+                    <div style="margin-bottom:4px; {% if tom == 'perigo' %}color:#8d342f;{% elif tom == 'aviso' %}color:#7b5a1d;{% else %}color:#173f35;{% endif %} font-size:14px; font-weight:700; line-height:1.4;">{{ destaque_titulo }}</div>
+                    <div style="color:#53635c; font-size:14px; line-height:1.55;">{{ destaque_texto }}</div>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          {% endif %}
+          <tr>
+            <td style="padding:20px 32px; background-color:#173f35; text-align:center;">
+              <p style="margin:0; color:#d9e2dc; font-size:12px; line-height:1.6;">Mensagem enviada automaticamente pelo Sistema Bibliotecário.</p>
+              <p style="margin:3px 0 0; color:#aebfb5; font-size:12px; line-height:1.6;">Em caso de dúvida, procure a biblioteca da escola.</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

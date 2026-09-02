@@ -5,6 +5,7 @@ from django.db import transaction
 from django.db.models import F
 from django.utils import timezone
 
+from comunicacoes.services import enfileirar_emprestimo_realizado
 from livros.models import Livro
 from reservas.models import Reserva
 from reservas.services import liberar_proximas_reservas
@@ -92,6 +93,7 @@ def registrar_emprestimo(
         reserva_do_aluno.status = Reserva.Status.ATENDIDA
         reserva_do_aluno.save(update_fields=["status", "atualizada_em"])
 
+    enfileirar_emprestimo_realizado(emprestimo=emprestimo)
     liberar_proximas_reservas(livro_id=livro.pk)
     return emprestimo
 

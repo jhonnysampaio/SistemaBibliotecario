@@ -1,6 +1,8 @@
 from datetime import timedelta
 from django.db import IntegrityError, transaction
 from django.utils import timezone
+
+from comunicacoes.services import enfileirar_reserva_disponivel
 from emprestimos.models import Emprestimo
 from livros.models import Livro
 
@@ -81,6 +83,7 @@ def liberar_proximas_reservas(*, livro_id, prazo_horas=48):
                 "atualizada_em",
             ]
         )
+        enfileirar_reserva_disponivel(reserva=proxima)
         liberadas.append(proxima)
         vagas -= 1
     return liberadas

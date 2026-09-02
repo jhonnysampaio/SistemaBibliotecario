@@ -19,3 +19,21 @@ class ReservaForm(forms.ModelForm):
         ).select_related("categoria")
         for field in self.fields.values():
             field.widget.attrs["class"] = "form-select"
+        self.fields["aluno"].widget.attrs.update(
+            {
+                "data-searchable-select": "true",
+                "data-search-placeholder": (
+                    "Pesquisar aluno por nome ou matrícula"
+                ),
+                "data-search-empty": "Nenhum aluno encontrado.",
+            }
+        )
+        self.fields["livro"].widget.attrs.update(
+            {
+                "data-searchable-select": "true",
+                "data-search-placeholder": (
+                    "Pesquisar livro por título ou autor"
+                ),
+                "data-search-empty": "Nenhum livro encontrado.",
+            }
+        )

@@ -4,7 +4,9 @@ from django.contrib.auth.models import Permission, User
 from django.test import TestCase
 from django.utils import timezone
 from alunos.models import Aluno
+from comunicacoes.models import Mensagem
 from livros.models import Categoria, Livro
+from .forms import EmprestimoForm
 from .models import Emprestimo
 from .services import(
     RegraEmprestimoError,
@@ -55,6 +57,45 @@ class EmprestimoServiceTests(TestCase):
         self.livro.refresh_from_db()
         self.assertEqual(emprestimo.situacao, emprestimo.Situacao.ATIVO)
         self.assertEqual(self.livro.quantidade_disponivel, 0)
+
+    def test_emprestimo_com_email_cria_mensagem_de_confirmacao(self):
+        self.aluno.email = "aluno@example.com"
+        self.aluno.save(update_fields=["email"])
+
+        emprestimo = self.registrar()
+
+        self.assertTrue(
+            Mensagem.objects.filter(
+                tipo=Mensagem.Tipo.EMPRESTIMO,
+                aluno=self.aluno,
+                emprestimo=emprestimo,
+                destinatario=self.aluno.email,
+            ).exists()
+        )
+
+    def test_selecao_de_aluno_e_livro_possui_pesquisa(self):
+        form = EmprestimoForm()
+
+        self.assertEqual(
+            form.fields["aluno"].widget.attrs["data-searchable-select"],
+            "true",
+        )
+        self.assertIn(
+            "nome ou matrícula",
+            form.fields["aluno"].widget.attrs[
+                "data-search-placeholder"
+            ],
+        )
+        self.assertEqual(
+            form.fields["livro"].widget.attrs["data-searchable-select"],
+            "true",
+        )
+        self.assertIn(
+            "título ou autor",
+            form.fields["livro"].widget.attrs[
+                "data-search-placeholder"
+            ],
+        )
 
     def test_sem_estoque_nao_cria_emprestimo(self):
         self.livro.quantidade_disponivel = 0

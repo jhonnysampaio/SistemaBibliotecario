@@ -33,6 +33,24 @@ class EmprestimoForm(forms.ModelForm):
                 if isinstance(field.widget, forms.Select)
                 else "form-control"
             )
+        self.fields["aluno"].widget.attrs.update(
+            {
+                "data-searchable-select": "true",
+                "data-search-placeholder": (
+                    "Pesquisar aluno por nome ou matrícula"
+                ),
+                "data-search-empty": "Nenhum aluno encontrado.",
+            }
+        )
+        self.fields["livro"].widget.attrs.update(
+            {
+                "data-searchable-select": "true",
+                "data-search-placeholder": (
+                    "Pesquisar livro por título ou autor"
+                ),
+                "data-search-empty": "Nenhum livro encontrado.",
+            }
+        )
 
     def clean_data_prevista(self):
         data = self.cleaned_data["data_prevista"]

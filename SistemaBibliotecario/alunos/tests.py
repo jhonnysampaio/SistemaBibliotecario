@@ -6,6 +6,7 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
+from comunicacoes.models import Mensagem
 from emprestimos.forms import EmprestimoForm
 from emprestimos.models import Emprestimo
 from livros.models import Categoria, Livro
@@ -110,6 +111,43 @@ class AlunoViewTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Ana Souza")
+
+    def test_cadastro_com_email_cria_mensagem_de_boas_vindas(self):
+        self.user.user_permissions.add(
+            *Permission.objects.filter(
+                content_type__app_label="alunos",
+                codename__in=("add_aluno", "view_aluno"),
+            )
+        )
+        self.client.force_login(self.user)
+
+        response = self.client.post(
+            reverse("alunos:criar"),
+            {
+                "matricula": "2026002",
+                "nome": "Marina Alves",
+                "serie": "1º ano",
+                "turma": "B",
+                "turno": "V",
+                "cpf": "111.444.777-35",
+                "telefone": "",
+                "email": "marina@example.com",
+                "ativo": True,
+            },
+        )
+
+        aluno = Aluno.objects.get(matricula="2026002")
+        self.assertRedirects(
+            response,
+            reverse("alunos:detalhe", args=[aluno.pk]),
+        )
+        self.assertTrue(
+            Mensagem.objects.filter(
+                tipo=Mensagem.Tipo.CADASTRO,
+                aluno=aluno,
+                destinatario=aluno.email,
+            ).exists()
+        )
 
     def test_exclusao_nao_aceita_get(self):
         permission = Permission.objects.get(codename="delete_aluno")

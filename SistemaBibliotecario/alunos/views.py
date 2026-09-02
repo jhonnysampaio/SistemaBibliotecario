@@ -6,7 +6,10 @@ from django.db.models.deletion import ProtectedError
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
-from comunicacoes.services import enfileirar_pendencia_ano_letivo
+from comunicacoes.services import (
+    enfileirar_cadastro_aluno,
+    enfileirar_pendencia_ano_letivo,
+)
 from emprestimos.models import Emprestimo
 
 from .forms import AlunoForm, FechamentoAnoLetivoForm
@@ -65,6 +68,7 @@ def criar(request):
 
     if request.method == "POST" and form.is_valid():
         aluno = form.save()
+        enfileirar_cadastro_aluno(aluno=aluno)
         messages.success(request, "Aluno cadastrado.")
         return redirect("alunos:detalhe", pk=aluno.pk)
 

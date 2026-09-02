@@ -8,6 +8,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from alunos.models import Aluno
+from comunicacoes.models import Mensagem
 from emprestimos.models import Emprestimo
 from emprestimos.services import (
     RegraEmprestimoError,
@@ -115,6 +116,13 @@ class ReservaServiceTests(ReservaBaseTests):
         self.assertEqual(fila[2].status, Reserva.Status.AGUARDANDO)
         self.assertIsNotNone(fila[0].disponivel_ate)
         self.assertIsNotNone(fila[1].disponivel_ate)
+        self.assertEqual(
+            Mensagem.objects.filter(
+                tipo=Mensagem.Tipo.RESERVA,
+                reserva__in=fila[:2],
+            ).count(),
+            2,
+        )
 
     def test_reserva_vencida_expira_e_libera_a_proxima(self):
         self.livro.quantidade_disponivel = 1
@@ -282,6 +290,30 @@ class ReservaFormTests(ReservaBaseTests):
         self.assertNotIn(livro_inativo, form.fields["livro"].queryset)
         self.assertIn(self.alunos[0], form.fields["aluno"].queryset)
         self.assertIn(self.livro, form.fields["livro"].queryset)
+
+    def test_selecao_de_aluno_e_livro_possui_pesquisa(self):
+        form = ReservaForm()
+
+        self.assertEqual(
+            form.fields["aluno"].widget.attrs["data-searchable-select"],
+            "true",
+        )
+        self.assertIn(
+            "nome ou matrícula",
+            form.fields["aluno"].widget.attrs[
+                "data-search-placeholder"
+            ],
+        )
+        self.assertEqual(
+            form.fields["livro"].widget.attrs["data-searchable-select"],
+            "true",
+        )
+        self.assertIn(
+            "título ou autor",
+            form.fields["livro"].widget.attrs[
+                "data-search-placeholder"
+            ],
+        )
 
 
 class ReservaViewTests(ReservaBaseTests):
