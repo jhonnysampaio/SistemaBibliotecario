@@ -65,6 +65,16 @@ Inicie o servidor de desenvolvimento:
 python manage.py runserver
 ```
 
+Enquanto o servidor estiver ativo, os e-mails de cadastro, empréstimo,
+devolução, reserva e disponibilidade são enviados quando cada operação é
+confirmada no banco. Os avisos de prazo e atraso são sincronizados ao iniciar
+o servidor e, depois, exatamente na próxima virada do dia. A expiração de uma
+reserva também agenda sua própria próxima verificação, sem varredura fixa a
+cada 30 minutos.
+
+Para iniciar o servidor sem o agendador interno de e-mails, defina
+`DJANGO_EMAIL_AUTOMACAO_NO_SERVIDOR=False` antes de executar o `runserver`.
+
 Abra `http://127.0.0.1:8000/auth/login/` no navegador.
 
 ## Verificação final

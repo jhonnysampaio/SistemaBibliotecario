@@ -10,14 +10,29 @@ def ano_letivo_atual():
 
 
 class Aluno(models.Model):
+    class Serie(models.TextChoices):
+        PRIMEIRA = "1º ano", "1ª série"
+        SEGUNDA = "2º ano", "2ª série"
+        TERCEIRA = "3º ano", "3ª série"
+
+    class Turma(models.TextChoices):
+        A = "A", "A"
+        B = "B", "B"
+        C = "C", "C"
+        TECNICO = "Téc", "Téc"
+
     class Turno(models.TextChoices):
         MATUTINO = "M", "Matutino"
         VESPERTINO = "V", "Vespertino"
 
     matricula = models.CharField("matrícula" ,max_length=20, unique=True)
     nome = models.CharField(max_length=120, db_index=True)
-    serie = models.CharField("série", max_length=20)
-    turma = models.CharField(max_length=20)
+    serie = models.CharField(
+        "série",
+        max_length=20,
+        choices=Serie.choices,
+    )
+    turma = models.CharField(max_length=20, choices=Turma.choices)
     turno = models.CharField(max_length=1, choices=Turno.choices)
     cpf = models.CharField(
         "CPF",

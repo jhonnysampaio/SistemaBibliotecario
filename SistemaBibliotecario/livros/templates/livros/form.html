@@ -21,12 +21,6 @@ Cadastre um novo livro no acervo da biblioteca.
 
 <style>
 
-    /*
-    =========================================================
-    SELECT PESQUISÁVEL
-    =========================================================
-    */
-
     .searchable-select-wrapper {
         position: relative;
         width: 100%;
@@ -56,6 +50,7 @@ Cadastre um novo livro no acervo da biblioteca.
     }
 
     .searchable-select-input:focus {
+
         outline: none;
 
         border-color: #86b7fe;
@@ -72,16 +67,13 @@ Cadastre um novo livro no acervo da biblioteca.
         right: 14px;
         top: 50%;
 
-        transform:
-            translateY(-50%);
+        transform: translateY(-50%);
 
         pointer-events: none;
 
-        color:
-            var(--bs-secondary-color);
+        color: var(--bs-secondary-color);
 
-        transition:
-            transform 0.2s ease;
+        transition: transform 0.2s ease;
     }
 
     .searchable-select-wrapper.open
@@ -92,13 +84,6 @@ Cadastre um novo livro no acervo da biblioteca.
             rotate(180deg);
     }
 
-
-    /*
-    =========================================================
-    DROPDOWN
-    =========================================================
-    */
-
     .searchable-select-dropdown {
 
         display: none;
@@ -106,14 +91,12 @@ Cadastre um novo livro no acervo da biblioteca.
         position: absolute;
 
         top: calc(100% + 5px);
-
         left: 0;
         right: 0;
 
         z-index: 1050;
 
         max-height: 280px;
-
         overflow-y: auto;
 
         border:
@@ -136,13 +119,6 @@ Cadastre um novo livro no acervo da biblioteca.
         display: block;
     }
 
-
-    /*
-    =========================================================
-    OPÇÕES
-    =========================================================
-    */
-
     .searchable-select-option {
 
         padding: 11px 14px;
@@ -155,17 +131,13 @@ Cadastre um novo livro no acervo da biblioteca.
         border-bottom:
             1px solid
             var(--bs-border-color-translucent);
-
-        transition:
-            background-color 0.1s ease;
     }
 
     .searchable-select-option:last-child {
         border-bottom: none;
     }
 
-    .searchable-select-option:hover,
-    .searchable-select-option.active {
+    .searchable-select-option:hover {
 
         background-color:
             var(--bs-secondary-bg);
@@ -178,13 +150,6 @@ Cadastre um novo livro no acervo da biblioteca.
         color:
             var(--bs-primary);
     }
-
-
-    /*
-    =========================================================
-    SEM RESULTADOS
-    =========================================================
-    */
 
     .searchable-select-empty {
 
@@ -200,13 +165,6 @@ Cadastre um novo livro no acervo da biblioteca.
         font-size: 0.9rem;
     }
 
-
-    /*
-    =========================================================
-    SELECT ORIGINAL
-    =========================================================
-    */
-
     .django-original-select {
 
         position: absolute !important;
@@ -219,13 +177,13 @@ Cadastre um novo livro no acervo da biblioteca.
 
         overflow: hidden !important;
 
-        clip: rect(0, 0, 0, 0) !important;
+        clip:
+            rect(0, 0, 0, 0) !important;
 
         white-space: nowrap !important;
 
         border: 0 !important;
     }
-
 
     .livro-form-card {
 
@@ -255,11 +213,7 @@ Cadastre um novo livro no acervo da biblioteca.
                 <div class="alert alert-danger">
 
                     {% for error in form.non_field_errors %}
-
-                        <div>
-                            {{ error }}
-                        </div>
-
+                        <div>{{ error }}</div>
                     {% endfor %}
 
                 </div>
@@ -414,7 +368,7 @@ Cadastre um novo livro no acervo da biblioteca.
                 </div>
 
 
-                <!-- CATEGORIA PESQUISÁVEL -->
+                <!-- CATEGORIA -->
 
                 <div class="col-md-6 mb-3">
 
@@ -466,7 +420,7 @@ Cadastre um novo livro no acervo da biblioteca.
                 </div>
 
 
-                <!-- LOCAL DA ESTANTE -->
+                <!-- LOCAL -->
 
                 <div class="col-md-8 mb-3">
 
@@ -557,7 +511,6 @@ Cadastre um novo livro no acervo da biblioteca.
 
                 </div>
 
-
             </div>
 
 
@@ -567,9 +520,11 @@ Cadastre um novo livro no acervo da biblioteca.
                     type="submit"
                     class="btn btn-primary"
                 >
+
                     <i class="bi bi-book-plus me-1"></i>
 
                     Cadastrar livro
+
                 </button>
 
 
@@ -591,343 +546,398 @@ Cadastre um novo livro no acervo da biblioteca.
 {% endblock %}
 
 
-
 {% block extra_js %}
 
 <script>
 
-document.addEventListener(
-    "DOMContentLoaded",
-    function () {
+document.addEventListener("DOMContentLoaded", function () {
 
-        function transformarEmSelectPesquisavel(
-            selectId,
-            placeholder,
-            mensagemSemResultado
-        ) {
+    function transformarEmSelectPesquisavel(
+        selectId,
+        placeholder,
+        mensagemSemResultado
+    ) {
 
-            const select =
-                document.getElementById(selectId);
+        const select =
+            document.getElementById(selectId);
 
-            if (!select) {
+        if (!select) {
 
-                console.error(
-                    "Select não encontrado:",
-                    selectId
-                );
-
-                return;
-            }
-
-
-            const wrapper =
-                document.createElement("div");
-
-            wrapper.className =
-                "searchable-select-wrapper";
-
-
-            const inputWrapper =
-                document.createElement("div");
-
-            inputWrapper.className =
-                "searchable-select-input-wrapper";
-
-
-            const input =
-                document.createElement("input");
-
-            input.type = "text";
-
-            input.className =
-                "searchable-select-input";
-
-            input.placeholder =
-                placeholder;
-
-            input.autocomplete = "off";
-
-
-            const icon =
-                document.createElement("i");
-
-            icon.className =
-                "bi bi-chevron-down searchable-select-icon";
-
-
-            const dropdown =
-                document.createElement("div");
-
-            dropdown.className =
-                "searchable-select-dropdown";
-
-
-            const empty =
-                document.createElement("div");
-
-            empty.className =
-                "searchable-select-empty";
-
-            empty.textContent =
-                mensagemSemResultado;
-
-            dropdown.appendChild(empty);
-
-
-            select.parentNode.insertBefore(
-                wrapper,
-                select
+            console.error(
+                "Select não encontrado:",
+                selectId
             );
 
-            wrapper.appendChild(
-                inputWrapper
-            );
-
-            inputWrapper.appendChild(
-                input
-            );
-
-            inputWrapper.appendChild(
-                icon
-            );
-
-            wrapper.appendChild(
-                dropdown
-            );
-
-            wrapper.appendChild(
-                select
-            );
+            return;
+        }
 
 
-            select.classList.add(
-                "django-original-select"
-            );
+        const wrapper =
+            document.createElement("div");
+
+        wrapper.className =
+            "searchable-select-wrapper";
 
 
-            const items = [];
+        const inputWrapper =
+            document.createElement("div");
+
+        inputWrapper.className =
+            "searchable-select-input-wrapper";
 
 
-            Array.from(select.options)
-                .forEach(function (option) {
+        const input =
+            document.createElement("input");
 
-                    if (!option.value) {
-                        return;
-                    }
+        input.type = "text";
 
+        input.className =
+            "searchable-select-input";
 
-                    const item =
-                        document.createElement("div");
+        input.placeholder =
+            placeholder;
 
-                    item.className =
-                        "searchable-select-option";
-
-                    item.textContent =
-                        option.textContent.trim();
-
-                    item.dataset.value =
-                        option.value;
-
-                    item.dataset.search =
-                        removerAcentos(
-                            option.textContent
-                                .trim()
-                                .toLowerCase()
-                        );
+        input.autocomplete = "off";
 
 
-                    if (option.selected) {
+        const icon =
+            document.createElement("i");
 
-                        item.classList.add(
-                            "selected"
-                        );
-
-                        input.value =
-                            option.textContent.trim();
-                    }
+        icon.className =
+            "bi bi-chevron-down searchable-select-icon";
 
 
-                    item.addEventListener(
-                        "click",
-                        function () {
+        const dropdown =
+            document.createElement("div");
 
-                            select.value =
-                                item.dataset.value;
-
-                            input.value =
-                                item.textContent;
+        dropdown.className =
+            "searchable-select-dropdown";
 
 
-                            items.forEach(
-                                function (outroItem) {
+        const empty =
+            document.createElement("div");
 
-                                    outroItem
-                                        .classList
-                                        .remove(
-                                            "selected"
-                                        );
+        empty.className =
+            "searchable-select-empty";
 
-                                }
-                            );
+        empty.textContent =
+            mensagemSemResultado;
 
-
-                            item.classList.add(
-                                "selected"
-                            );
+        dropdown.appendChild(
+            empty
+        );
 
 
-                            wrapper
-                                .classList
-                                .remove(
-                                    "open"
-                                );
+        select.parentNode.insertBefore(
+            wrapper,
+            select
+        );
 
 
-                            select.dispatchEvent(
-                                new Event(
-                                    "change",
-                                    {
-                                        bubbles: true
-                                    }
-                                )
-                            );
+        wrapper.appendChild(
+            inputWrapper
+        );
 
-                        }
-                    );
+        inputWrapper.appendChild(
+            input
+        );
 
+        inputWrapper.appendChild(
+            icon
+        );
 
-                    dropdown.insertBefore(
-                        item,
-                        empty
-                    );
+        wrapper.appendChild(
+            dropdown
+        );
 
-                    items.push(item);
-
-                });
+        wrapper.appendChild(
+            select
+        );
 
 
-            input.addEventListener(
-                "focus",
-                function () {
+        select.classList.add(
+            "django-original-select"
+        );
 
-                    fecharTodos(
-                        wrapper
-                    );
 
-                    wrapper.classList.add(
-                        "open"
-                    );
+        const items = [];
 
-                    filtrar("");
 
+        Array.from(
+            select.options
+        ).forEach(
+            function (option) {
+
+                if (!option.value) {
+                    return;
                 }
-            );
 
 
-            input.addEventListener(
-                "click",
-                function () {
-
-                    wrapper.classList.add(
-                        "open"
-                    );
-
-                }
-            );
-
-
-            input.addEventListener(
-                "input",
-                function () {
-
-                    select.value = "";
-
-
-                    items.forEach(
-                        function (item) {
-
-                            item.classList.remove(
-                                "selected"
-                            );
-
-                        }
+                const item =
+                    document.createElement(
+                        "div"
                     );
 
 
-                    filtrar(
-                        input.value
-                    );
+                item.className =
+                    "searchable-select-option";
 
 
-                    wrapper.classList.add(
-                        "open"
-                    );
-
-                }
-            );
+                item.textContent =
+                    option.textContent.trim();
 
 
-            function filtrar(texto) {
+                item.dataset.value =
+                    option.value;
 
-                const pesquisa =
+
+                item.dataset.search =
                     removerAcentos(
-                        texto
+                        option.textContent
                             .trim()
                             .toLowerCase()
                     );
 
 
-                let encontrados = 0;
+                if (
+                    option.selected
+                ) {
+
+                    item.classList.add(
+                        "selected"
+                    );
+
+                    input.value =
+                        option.textContent
+                            .trim();
+
+                }
 
 
-                items.forEach(
-                    function (item) {
+                item.addEventListener(
+                    "click",
+                    function () {
 
-                        if (
-                            item.dataset.search.includes(
-                                pesquisa
+                        select.value =
+                            item.dataset.value;
+
+
+                        input.value =
+                            item.textContent;
+
+
+                        items.forEach(
+                            function (
+                                outroItem
+                            ) {
+
+                                outroItem
+                                    .classList
+                                    .remove(
+                                        "selected"
+                                    );
+
+                            }
+                        );
+
+
+                        item.classList.add(
+                            "selected"
+                        );
+
+
+                        wrapper
+                            .classList
+                            .remove(
+                                "open"
+                            );
+
+
+                        select.dispatchEvent(
+                            new Event(
+                                "change",
+                                {
+                                    bubbles: true
+                                }
                             )
-                        ) {
-
-                            item.style.display =
-                                "block";
-
-                            encontrados++;
-
-                        } else {
-
-                            item.style.display =
-                                "none";
-
-                        }
+                        );
 
                     }
                 );
 
 
-                empty.style.display =
-                    encontrados === 0
-                        ? "block"
-                        : "none";
-
-            }
-
-        }
-
-
-        function removerAcentos(texto) {
-
-            return texto
-                .normalize("NFD")
-                .replace(
-                    /[\u0300-\u036f]/g,
-                    ""
+                dropdown.insertBefore(
+                    item,
+                    empty
                 );
 
+
+                items.push(
+                    item
+                );
+
+            }
+        );
+
+
+        input.addEventListener(
+            "focus",
+            function () {
+
+                fecharTodos(
+                    wrapper
+                );
+
+                wrapper.classList.add(
+                    "open"
+                );
+
+                filtrar("");
+
+            }
+        );
+
+
+        input.addEventListener(
+            "click",
+            function () {
+
+                wrapper.classList.add(
+                    "open"
+                );
+
+            }
+        );
+
+
+        input.addEventListener(
+            "input",
+            function () {
+
+                select.value = "";
+
+
+                items.forEach(
+                    function (item) {
+
+                        item.classList.remove(
+                            "selected"
+                        );
+
+                    }
+                );
+
+
+                filtrar(
+                    input.value
+                );
+
+
+                wrapper.classList.add(
+                    "open"
+                );
+
+            }
+        );
+
+
+        function filtrar(
+            texto
+        ) {
+
+            const pesquisa =
+                removerAcentos(
+                    texto
+                        .trim()
+                        .toLowerCase()
+                );
+
+
+            let encontrados = 0;
+
+
+            items.forEach(
+                function (item) {
+
+                    if (
+                        item.dataset.search
+                            .includes(
+                                pesquisa
+                            )
+                    ) {
+
+                        item.style.display =
+                            "block";
+
+                        encontrados++;
+
+                    } else {
+
+                        item.style.display =
+                            "none";
+
+                    }
+
+                }
+            );
+
+
+            empty.style.display =
+                encontrados === 0
+                    ? "block"
+                    : "none";
+
         }
 
+    }
 
-        function fecharTodos(exceto) {
+
+    function removerAcentos(
+        texto
+    ) {
+
+        return texto
+            .normalize("NFD")
+            .replace(
+                /[\u0300-\u036f]/g,
+                ""
+            );
+
+    }
+
+
+    function fecharTodos(
+        exceto
+    ) {
+
+        document
+            .querySelectorAll(
+                ".searchable-select-wrapper"
+            )
+            .forEach(
+                function (wrapper) {
+
+                    if (
+                        wrapper !== exceto
+                    ) {
+
+                        wrapper
+                            .classList
+                            .remove(
+                                "open"
+                            );
+
+                    }
+
+                }
+            );
+
+    }
+
+
+    document.addEventListener(
+        "click",
+        function (event) {
 
             document
                 .querySelectorAll(
@@ -936,7 +946,11 @@ document.addEventListener(
                 .forEach(
                     function (wrapper) {
 
-                        if (wrapper !== exceto) {
+                        if (
+                            !wrapper.contains(
+                                event.target
+                            )
+                        ) {
 
                             wrapper
                                 .classList
@@ -950,48 +964,16 @@ document.addEventListener(
                 );
 
         }
+    );
 
 
-        document.addEventListener(
-            "click",
-            function (event) {
+    transformarEmSelectPesquisavel(
+        "id_categoria",
+        "Digite para pesquisar uma categoria...",
+        "Nenhuma categoria encontrada."
+    );
 
-                document
-                    .querySelectorAll(
-                        ".searchable-select-wrapper"
-                    )
-                    .forEach(
-                        function (wrapper) {
-
-                            if (
-                                !wrapper.contains(
-                                    event.target
-                                )
-                            ) {
-
-                                wrapper
-                                    .classList
-                                    .remove(
-                                        "open"
-                                    );
-
-                            }
-
-                        }
-                    );
-
-            }
-        );
-
-
-        transformarEmSelectPesquisavel(
-            "id_categoria",
-            "Digite para pesquisar uma categoria...",
-            "Nenhuma categoria encontrada."
-        );
-
-    }
-);
+});
 
 </script>
 

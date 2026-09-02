@@ -5,8 +5,10 @@ class Mensagem(models.Model):
     class Tipo(models.TextChoices):
         CADASTRO = "CADASTRO", "Cadastro de aluno"
         EMPRESTIMO = "EMPRESTIMO", "Empréstimo realizado"
+        DEVOLUCAO = "DEVOLUCAO", "Devolução realizada"
         PRAZO = "PRAZO", "Empréstimo perto do prazo"
         ATRASO = "ATRASO", "Empréstimo atrasado"
+        RESERVA_CRIADA = "RESERVA_CRIADA", "Reserva realizada"
         RESERVA = "RESERVA", "Reserva disponível"
         PENDENCIA_ANUAL = "PENDENCIA_ANUAL", "Pendência anual"
 

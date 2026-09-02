@@ -2,7 +2,10 @@ from datetime import timedelta
 from django.db import IntegrityError, transaction
 from django.utils import timezone
 
-from comunicacoes.services import enfileirar_reserva_disponivel
+from comunicacoes.services import (
+    enfileirar_reserva_criada,
+    enfileirar_reserva_disponivel,
+)
 from emprestimos.models import Emprestimo
 from livros.models import Livro
 
@@ -39,11 +42,13 @@ def criar_reserva(*, aluno, livro):
         )
     try:
         with transaction.atomic():
-            return Reserva.objects.create(aluno=aluno, livro=livro)
+            reserva = Reserva.objects.create(aluno=aluno, livro=livro)
     except IntegrityError as error:
         raise RegraReservaError(
             "O aluno já possui uma reserva ativa deste livro."
         ) from error
+    enfileirar_reserva_criada(reserva=reserva)
+    return reserva
 
 
 @transaction.atomic
@@ -83,6 +88,9 @@ def liberar_proximas_reservas(*, livro_id, prazo_horas=48):
                 "atualizada_em",
             ]
         )
+        from comunicacoes.agendador import acordar_agendador
+
+        transaction.on_commit(acordar_agendador)
         enfileirar_reserva_disponivel(reserva=proxima)
         liberadas.append(proxima)
         vagas -= 1

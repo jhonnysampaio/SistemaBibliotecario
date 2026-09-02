@@ -17,11 +17,13 @@ class ReservaForm(forms.ModelForm):
         )
 
         widgets = {
+
             "aluno": forms.Select(
                 attrs={
                     "class": "form-select",
                 }
             ),
+
             "livro": forms.Select(
                 attrs={
                     "class": "form-select",
@@ -32,14 +34,12 @@ class ReservaForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Lista apenas alunos ativos
         self.fields["aluno"].queryset = (
             Aluno.objects
             .filter(ativo=True)
             .order_by("nome")
         )
 
-        # Lista apenas livros ativos
         self.fields["livro"].queryset = (
             Livro.objects
             .filter(ativo=True)
@@ -47,6 +47,10 @@ class ReservaForm(forms.ModelForm):
             .order_by("titulo")
         )
 
-        # Textos iniciais dos campos
-        self.fields["aluno"].empty_label = "Selecione um aluno"
-        self.fields["livro"].empty_label = "Selecione um livro"
+        self.fields["aluno"].empty_label = (
+            "Selecione um aluno"
+        )
+
+        self.fields["livro"].empty_label = (
+            "Selecione um livro"
+        )

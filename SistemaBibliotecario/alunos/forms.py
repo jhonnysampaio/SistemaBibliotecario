@@ -40,8 +40,18 @@ class AlunoForm(forms.ModelForm):
         for field in self.fields.values():
             if isinstance(field.widget, forms.CheckboxInput):
                 field.widget.attrs["class"] = "form-check-input"
+            elif isinstance(field.widget, forms.Select):
+                field.widget.attrs["class"] = "form-select"
             else:
                 field.widget.attrs["class"] = "form-control"
+        self.fields["serie"].choices = [
+            ("", "Selecione a série"),
+            *Aluno.Serie.choices,
+        ]
+        self.fields["turma"].choices = [
+            ("", "Selecione a turma"),
+            *Aluno.Turma.choices,
+        ]
 
     def clean_matricula(self):
         return self.cleaned_data["matricula"].strip().upper()

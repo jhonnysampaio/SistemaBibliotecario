@@ -5,7 +5,10 @@ from django.db import transaction
 from django.db.models import F
 from django.utils import timezone
 
-from comunicacoes.services import enfileirar_emprestimo_realizado
+from comunicacoes.services import (
+    enfileirar_devolucao_emprestimo,
+    enfileirar_emprestimo_realizado,
+)
 from livros.models import Livro
 from reservas.models import Reserva
 from reservas.services import liberar_proximas_reservas
@@ -131,6 +134,7 @@ def devolver_emprestimo(*, emprestimo, data_devolucao=None):
     emprestimo.save(
         update_fields=["situacao", "data_devolucao", "atualizado_em"]
     )
+    enfileirar_devolucao_emprestimo(emprestimo=emprestimo)
     liberar_proximas_reservas(livro_id=emprestimo.livro_id)
     return emprestimo
 

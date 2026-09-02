@@ -21,12 +21,6 @@ Selecione o aluno e o livro para registrar uma nova reserva.
 
 <style>
 
-    /*
-    =========================================================
-    SELECT PESQUISÁVEL
-    =========================================================
-    */
-
     .searchable-select-wrapper {
         position: relative;
         width: 100%;
@@ -61,7 +55,8 @@ Selecione o aluno e o livro para registrar uma nova reserva.
         border-color: #86b7fe;
 
         box-shadow:
-            0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+            0 0 0 0.25rem
+            rgba(13, 110, 253, 0.25);
     }
 
     .searchable-select-icon {
@@ -87,13 +82,6 @@ Selecione o aluno e o livro para registrar uma nova reserva.
             rotate(180deg);
     }
 
-
-    /*
-    =========================================================
-    DROPDOWN
-    =========================================================
-    */
-
     .searchable-select-dropdown {
         display: none;
 
@@ -106,30 +94,22 @@ Selecione o aluno e o livro para registrar uma nova reserva.
         z-index: 1050;
 
         max-height: 280px;
-
         overflow-y: auto;
 
         border: 1px solid var(--bs-border-color);
-
         border-radius: 8px;
 
         background-color: var(--bs-body-bg);
 
         box-shadow:
-            0 8px 24px rgba(0, 0, 0, 0.15);
+            0 8px 24px
+            rgba(0, 0, 0, 0.15);
     }
 
     .searchable-select-wrapper.open
     .searchable-select-dropdown {
         display: block;
     }
-
-
-    /*
-    =========================================================
-    OPÇÕES
-    =========================================================
-    */
 
     .searchable-select-option {
         padding: 11px 14px;
@@ -139,34 +119,23 @@ Selecione o aluno e o livro para registrar uma nova reserva.
         color: var(--bs-body-color);
 
         border-bottom:
-            1px solid var(--bs-border-color-translucent);
-
-        transition:
-            background-color 0.1s ease;
+            1px solid
+            var(--bs-border-color-translucent);
     }
 
     .searchable-select-option:last-child {
         border-bottom: none;
     }
 
-    .searchable-select-option:hover,
-    .searchable-select-option.active {
+    .searchable-select-option:hover {
         background-color:
             var(--bs-secondary-bg);
     }
 
     .searchable-select-option.selected {
         font-weight: 600;
-
         color: var(--bs-primary);
     }
-
-
-    /*
-    =========================================================
-    SEM RESULTADOS
-    =========================================================
-    */
 
     .searchable-select-empty {
         display: none;
@@ -179,13 +148,6 @@ Selecione o aluno e o livro para registrar uma nova reserva.
 
         font-size: 0.9rem;
     }
-
-
-    /*
-    =========================================================
-    SELECT ORIGINAL DO DJANGO
-    =========================================================
-    */
 
     .django-original-select {
         position: absolute !important;
@@ -205,16 +167,8 @@ Selecione o aluno e o livro para registrar uma nova reserva.
         border: 0 !important;
     }
 
-
-    /*
-    =========================================================
-    CARD
-    =========================================================
-    */
-
     .reserva-form-card {
         max-width: 900px;
-
         margin: 0 auto;
     }
 
@@ -224,15 +178,12 @@ Selecione o aluno e o livro para registrar uma nova reserva.
 
     .form-label {
         font-weight: 600;
-
         margin-bottom: 8px;
     }
 
     .form-help {
         color: var(--bs-secondary-color);
-
         font-size: 0.85rem;
-
         margin-top: 6px;
     }
 
@@ -257,19 +208,13 @@ Selecione o aluno e o livro para registrar uma nova reserva.
                 <div class="alert alert-danger">
 
                     {% for error in form.non_field_errors %}
-
-                        <div>
-                            {{ error }}
-                        </div>
-
+                        <div>{{ error }}</div>
                     {% endfor %}
 
                 </div>
 
             {% endif %}
 
-
-            <!-- ALUNO -->
 
             <div class="mb-4">
 
@@ -282,21 +227,13 @@ Selecione o aluno e o livro para registrar uma nova reserva.
 
                 {{ form.aluno }}
 
-                {% if form.aluno.errors %}
+                {% for error in form.aluno.errors %}
 
                     <div class="text-danger small mt-2">
-
-                        {% for error in form.aluno.errors %}
-
-                            <div>
-                                {{ error }}
-                            </div>
-
-                        {% endfor %}
-
+                        {{ error }}
                     </div>
 
-                {% endif %}
+                {% endfor %}
 
                 <div class="form-help">
                     Pesquise pelo nome ou matrícula do aluno.
@@ -304,8 +241,6 @@ Selecione o aluno e o livro para registrar uma nova reserva.
 
             </div>
 
-
-            <!-- LIVRO -->
 
             <div class="mb-4">
 
@@ -318,21 +253,13 @@ Selecione o aluno e o livro para registrar uma nova reserva.
 
                 {{ form.livro }}
 
-                {% if form.livro.errors %}
+                {% for error in form.livro.errors %}
 
                     <div class="text-danger small mt-2">
-
-                        {% for error in form.livro.errors %}
-
-                            <div>
-                                {{ error }}
-                            </div>
-
-                        {% endfor %}
-
+                        {{ error }}
                     </div>
 
-                {% endif %}
+                {% endfor %}
 
                 <div class="form-help">
                     Pesquise pelo título ou autor do livro.
@@ -340,8 +267,6 @@ Selecione o aluno e o livro para registrar uma nova reserva.
 
             </div>
 
-
-            <!-- BOTÕES -->
 
             <div class="d-flex gap-2 flex-wrap">
 
@@ -375,329 +300,357 @@ Selecione o aluno e o livro para registrar uma nova reserva.
 
 <script>
 
-document.addEventListener(
-    "DOMContentLoaded",
-    function () {
+document.addEventListener("DOMContentLoaded", function () {
 
-        function transformarEmSelectPesquisavel(
-            selectId,
-            placeholder,
-            mensagemSemResultado
-        ) {
+    function transformarEmSelectPesquisavel(
+        selectId,
+        placeholder,
+        mensagemSemResultado
+    ) {
 
-            const select =
-                document.getElementById(selectId);
+        const select =
+            document.getElementById(selectId);
 
-            if (!select) {
-
-                console.error(
-                    "Select não encontrado:",
-                    selectId
-                );
-
-                return;
-            }
-
-            const wrapper =
-                document.createElement("div");
-
-            wrapper.className =
-                "searchable-select-wrapper";
-
-
-            const inputWrapper =
-                document.createElement("div");
-
-            inputWrapper.className =
-                "searchable-select-input-wrapper";
-
-
-            const input =
-                document.createElement("input");
-
-            input.type = "text";
-
-            input.className =
-                "searchable-select-input";
-
-            input.placeholder =
-                placeholder;
-
-            input.autocomplete = "off";
-
-
-            const icon =
-                document.createElement("i");
-
-            icon.className =
-                "bi bi-chevron-down searchable-select-icon";
-
-
-            const dropdown =
-                document.createElement("div");
-
-            dropdown.className =
-                "searchable-select-dropdown";
-
-
-            const empty =
-                document.createElement("div");
-
-            empty.className =
-                "searchable-select-empty";
-
-            empty.textContent =
-                mensagemSemResultado;
-
-            dropdown.appendChild(empty);
-
-
-            select.parentNode.insertBefore(
-                wrapper,
-                select
+        if (!select) {
+            console.error(
+                "Select não encontrado:",
+                selectId
             );
+            return;
+        }
 
-            wrapper.appendChild(
-                inputWrapper
-            );
+        const wrapper =
+            document.createElement("div");
 
-            inputWrapper.appendChild(
-                input
-            );
-
-            inputWrapper.appendChild(
-                icon
-            );
-
-            wrapper.appendChild(
-                dropdown
-            );
-
-            wrapper.appendChild(
-                select
-            );
-
-            select.classList.add(
-                "django-original-select"
-            );
+        wrapper.className =
+            "searchable-select-wrapper";
 
 
-            const items = [];
+        const inputWrapper =
+            document.createElement("div");
+
+        inputWrapper.className =
+            "searchable-select-input-wrapper";
 
 
-            Array.from(select.options)
-                .forEach(function (option) {
+        const input =
+            document.createElement("input");
 
-                    if (!option.value) {
-                        return;
-                    }
+        input.type = "text";
+
+        input.className =
+            "searchable-select-input";
+
+        input.placeholder =
+            placeholder;
+
+        input.autocomplete = "off";
 
 
-                    const item =
-                        document.createElement("div");
+        const icon =
+            document.createElement("i");
 
-                    item.className =
-                        "searchable-select-option";
+        icon.className =
+            "bi bi-chevron-down searchable-select-icon";
 
-                    item.textContent =
+
+        const dropdown =
+            document.createElement("div");
+
+        dropdown.className =
+            "searchable-select-dropdown";
+
+
+        const empty =
+            document.createElement("div");
+
+        empty.className =
+            "searchable-select-empty";
+
+        empty.textContent =
+            mensagemSemResultado;
+
+        dropdown.appendChild(empty);
+
+
+        select.parentNode.insertBefore(
+            wrapper,
+            select
+        );
+
+        wrapper.appendChild(
+            inputWrapper
+        );
+
+        inputWrapper.appendChild(
+            input
+        );
+
+        inputWrapper.appendChild(
+            icon
+        );
+
+        wrapper.appendChild(
+            dropdown
+        );
+
+        wrapper.appendChild(
+            select
+        );
+
+        select.classList.add(
+            "django-original-select"
+        );
+
+
+        const items = [];
+
+
+        Array.from(select.options)
+            .forEach(function (option) {
+
+                if (!option.value) {
+                    return;
+                }
+
+                const item =
+                    document.createElement("div");
+
+                item.className =
+                    "searchable-select-option";
+
+                item.textContent =
+                    option.textContent.trim();
+
+                item.dataset.value =
+                    option.value;
+
+                item.dataset.search =
+                    removerAcentos(
+                        option.textContent
+                            .trim()
+                            .toLowerCase()
+                    );
+
+
+                if (option.selected) {
+
+                    item.classList.add(
+                        "selected"
+                    );
+
+                    input.value =
                         option.textContent.trim();
 
-                    item.dataset.value =
-                        option.value;
+                }
 
-                    item.dataset.search =
-                        removerAcentos(
-                            option.textContent
-                                .trim()
-                                .toLowerCase()
+
+                item.addEventListener(
+                    "click",
+                    function () {
+
+                        select.value =
+                            item.dataset.value;
+
+                        input.value =
+                            item.textContent;
+
+
+                        items.forEach(
+                            function (outroItem) {
+
+                                outroItem
+                                    .classList
+                                    .remove(
+                                        "selected"
+                                    );
+
+                            }
                         );
 
-
-                    if (option.selected) {
 
                         item.classList.add(
                             "selected"
                         );
 
-                        input.value =
-                            option.textContent.trim();
+
+                        wrapper
+                            .classList
+                            .remove(
+                                "open"
+                            );
+
+
+                        select.dispatchEvent(
+                            new Event(
+                                "change",
+                                {
+                                    bubbles: true
+                                }
+                            )
+                        );
 
                     }
+                );
 
 
-                    item.addEventListener(
-                        "click",
-                        function () {
+                dropdown.insertBefore(
+                    item,
+                    empty
+                );
 
-                            select.value =
-                                item.dataset.value;
+                items.push(item);
 
-                            input.value =
-                                item.textContent;
-
-                            items.forEach(
-                                function (outroItem) {
-
-                                    outroItem
-                                        .classList
-                                        .remove(
-                                            "selected"
-                                        );
-
-                                }
-                            );
-
-                            item.classList.add(
-                                "selected"
-                            );
-
-                            wrapper
-                                .classList
-                                .remove(
-                                    "open"
-                                );
-
-                            select.dispatchEvent(
-                                new Event(
-                                    "change",
-                                    {
-                                        bubbles: true
-                                    }
-                                )
-                            );
-
-                        }
-                    );
+            });
 
 
-                    dropdown.insertBefore(
-                        item,
-                        empty
-                    );
+        input.addEventListener(
+            "focus",
+            function () {
 
-                    items.push(item);
+                fecharTodos(
+                    wrapper
+                );
 
-                });
+                wrapper.classList.add(
+                    "open"
+                );
 
+                filtrar("");
 
-            input.addEventListener(
-                "focus",
-                function () {
-
-                    fecharTodos(
-                        wrapper
-                    );
-
-                    wrapper.classList.add(
-                        "open"
-                    );
-
-                    filtrar("");
-
-                }
-            );
+            }
+        );
 
 
-            input.addEventListener(
-                "click",
-                function () {
+        input.addEventListener(
+            "click",
+            function () {
 
-                    wrapper.classList.add(
-                        "open"
-                    );
+                wrapper.classList.add(
+                    "open"
+                );
 
-                }
-            );
-
-
-            input.addEventListener(
-                "input",
-                function () {
-
-                    select.value = "";
-
-                    items.forEach(
-                        function (item) {
-
-                            item.classList.remove(
-                                "selected"
-                            );
-
-                        }
-                    );
-
-                    filtrar(
-                        input.value
-                    );
-
-                    wrapper.classList.add(
-                        "open"
-                    );
-
-                }
-            );
+            }
+        );
 
 
-            function filtrar(texto) {
+        input.addEventListener(
+            "input",
+            function () {
 
-                const pesquisa =
-                    removerAcentos(
-                        texto
-                            .trim()
-                            .toLowerCase()
-                    );
-
-                let encontrados = 0;
-
+                select.value = "";
 
                 items.forEach(
                     function (item) {
 
-                        if (
-                            item.dataset.search.includes(
-                                pesquisa
-                            )
-                        ) {
-
-                            item.style.display =
-                                "block";
-
-                            encontrados++;
-
-                        } else {
-
-                            item.style.display =
-                                "none";
-
-                        }
+                        item.classList.remove(
+                            "selected"
+                        );
 
                     }
                 );
 
-
-                empty.style.display =
-                    encontrados === 0
-                        ? "block"
-                        : "none";
-
-            }
-
-        }
-
-
-        function removerAcentos(texto) {
-
-            return texto
-                .normalize("NFD")
-                .replace(
-                    /[\u0300-\u036f]/g,
-                    ""
+                filtrar(
+                    input.value
                 );
 
+                wrapper.classList.add(
+                    "open"
+                );
+
+            }
+        );
+
+
+        function filtrar(texto) {
+
+            const pesquisa =
+                removerAcentos(
+                    texto
+                        .trim()
+                        .toLowerCase()
+                );
+
+            let encontrados = 0;
+
+
+            items.forEach(
+                function (item) {
+
+                    if (
+                        item.dataset.search.includes(
+                            pesquisa
+                        )
+                    ) {
+
+                        item.style.display =
+                            "block";
+
+                        encontrados++;
+
+                    } else {
+
+                        item.style.display =
+                            "none";
+
+                    }
+
+                }
+            );
+
+
+            empty.style.display =
+                encontrados === 0
+                    ? "block"
+                    : "none";
+
         }
 
+    }
 
-        function fecharTodos(exceto) {
+
+    function removerAcentos(texto) {
+
+        return texto
+            .normalize("NFD")
+            .replace(
+                /[\u0300-\u036f]/g,
+                ""
+            );
+
+    }
+
+
+    function fecharTodos(exceto) {
+
+        document
+            .querySelectorAll(
+                ".searchable-select-wrapper"
+            )
+            .forEach(
+                function (wrapper) {
+
+                    if (
+                        wrapper !== exceto
+                    ) {
+
+                        wrapper
+                            .classList
+                            .remove(
+                                "open"
+                            );
+
+                    }
+
+                }
+            );
+
+    }
+
+
+    document.addEventListener(
+        "click",
+        function (event) {
 
             document
                 .querySelectorAll(
@@ -707,7 +660,9 @@ document.addEventListener(
                     function (wrapper) {
 
                         if (
-                            wrapper !== exceto
+                            !wrapper.contains(
+                                event.target
+                            )
                         ) {
 
                             wrapper
@@ -722,55 +677,23 @@ document.addEventListener(
                 );
 
         }
+    );
 
 
-        document.addEventListener(
-            "click",
-            function (event) {
-
-                document
-                    .querySelectorAll(
-                        ".searchable-select-wrapper"
-                    )
-                    .forEach(
-                        function (wrapper) {
-
-                            if (
-                                !wrapper.contains(
-                                    event.target
-                                )
-                            ) {
-
-                                wrapper
-                                    .classList
-                                    .remove(
-                                        "open"
-                                    );
-
-                            }
-
-                        }
-                    );
-
-            }
-        );
+    transformarEmSelectPesquisavel(
+        "id_aluno",
+        "Digite o nome ou matrícula do aluno...",
+        "Nenhum aluno encontrado."
+    );
 
 
-        transformarEmSelectPesquisavel(
-            "id_aluno",
-            "Digite o nome ou matrícula do aluno...",
-            "Nenhum aluno encontrado."
-        );
+    transformarEmSelectPesquisavel(
+        "id_livro",
+        "Digite o título ou autor do livro...",
+        "Nenhum livro encontrado."
+    );
 
-
-        transformarEmSelectPesquisavel(
-            "id_livro",
-            "Digite o título ou autor do livro...",
-            "Nenhum livro encontrado."
-        );
-
-    }
-);
+});
 
 </script>
 

@@ -19,6 +19,7 @@ class EmprestimoForm(forms.ModelForm):
         ]
 
         widgets = {
+
             "aluno": forms.Select(
                 attrs={
                     "class": "form-select",
@@ -66,13 +67,20 @@ class EmprestimoForm(forms.ModelForm):
             .order_by("titulo")
         )
 
-        self.fields["aluno"].empty_label = "Selecione um aluno"
-        self.fields["livro"].empty_label = "Selecione um livro"
+        self.fields["aluno"].empty_label = (
+            "Selecione um aluno"
+        )
+
+        self.fields["livro"].empty_label = (
+            "Selecione um livro"
+        )
 
     def clean_data_prevista(self):
+
         data = self.cleaned_data["data_prevista"]
 
         if data < timezone.localdate():
+
             raise forms.ValidationError(
                 "A devolução não pode estar no passado."
             )

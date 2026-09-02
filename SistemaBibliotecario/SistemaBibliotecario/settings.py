@@ -193,6 +193,10 @@ EMAIL_TIMEOUT = int(os.environ.get("DJANGO_EMAIL_TIMEOUT", "20"))
 AVISO_PRAZO_EMPRESTIMO_DIAS = int(
     os.environ.get("DJANGO_AVISO_PRAZO_EMPRESTIMO_DIAS", "2")
 )
+EMAIL_AUTOMACAO_NO_SERVIDOR = env_bool(
+    "DJANGO_EMAIL_AUTOMACAO_NO_SERVIDOR",
+    "True",
+)
 DEFAULT_FROM_EMAIL = os.environ.get(
     "DJANGO_DEFAULT_FROM_EMAIL",
     EMAIL_HOST_USER or "webmaster@localhost",

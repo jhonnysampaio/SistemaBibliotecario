@@ -2,6 +2,7 @@ from io import StringIO
 
 from django.contrib.auth.models import Group, Permission, User
 from django.core.management import call_command
+from django import forms
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
@@ -16,12 +17,51 @@ from .models import Aluno, HistoricoProgressao
 
 
 class AlunoFormTests(TestCase):
+    def test_serie_e_turma_sao_dropdowns_com_opcoes_definidas(self):
+        form = AlunoForm()
+
+        self.assertIsInstance(
+            form.fields["serie"].widget,
+            forms.Select,
+        )
+        self.assertIsInstance(
+            form.fields["turma"].widget,
+            forms.Select,
+        )
+        self.assertEqual(
+            list(form.fields["serie"].choices),
+            [
+                ("", "Selecione a série"),
+                ("1º ano", "1ª série"),
+                ("2º ano", "2ª série"),
+                ("3º ano", "3ª série"),
+            ],
+        )
+        self.assertEqual(
+            list(form.fields["turma"].choices),
+            [
+                ("", "Selecione a turma"),
+                ("A", "A"),
+                ("B", "B"),
+                ("C", "C"),
+                ("Téc", "Téc"),
+            ],
+        )
+        self.assertEqual(
+            form.fields["serie"].widget.attrs["class"],
+            "form-select",
+        )
+        self.assertEqual(
+            form.fields["turma"].widget.attrs["class"],
+            "form-select",
+        )
+
     def test_aceita_cpf_formatado_e_salva_somente_digitos(self):
         form = AlunoForm(
             data={
                 "matricula": "2026002",
                 "nome": "Marina Alves",
-                "serie": "8º",
+                "serie": "1º ano",
                 "turma": "A",
                 "turno": "M",
                 "cpf": "529.982.247-25",
@@ -42,7 +82,7 @@ class AlunoFormTests(TestCase):
             data={
                 "matricula": "2026001",
                 "nome": "Ana Souza",
-                "serie": "8º",
+                "serie": "1º ano",
                 "turma": "A",
                 "turno": "M",
                 "cpf": "111.111.111-11",
@@ -68,7 +108,7 @@ class AlunoFormTests(TestCase):
             data={
                 "matricula": "2026003",
                 "nome": "Outro aluno",
-                "serie": "9º",
+                "serie": "2º ano",
                 "turma": "B",
                 "turno": "V",
                 "cpf": "11144477735",

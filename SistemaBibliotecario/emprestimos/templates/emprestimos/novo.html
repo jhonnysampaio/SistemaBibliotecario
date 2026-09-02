@@ -1,10 +1,16 @@
 {% extends "base.html" %}
 
-{% block title %}Novo Empréstimo | Biblioteca Escolar{% endblock %}
+{% block title %}
+Novo Empréstimo | Biblioteca Escolar
+{% endblock %}
 
-{% block eyebrow %}Empréstimos{% endblock %}
+{% block eyebrow %}
+Empréstimos
+{% endblock %}
 
-{% block page_title %}Novo empréstimo{% endblock %}
+{% block page_title %}
+Novo empréstimo
+{% endblock %}
 
 {% block page_description %}
 Selecione o aluno e o livro para registrar um novo empréstimo.
@@ -15,27 +21,18 @@ Selecione o aluno e o livro para registrar um novo empréstimo.
 
 <style>
 
-    /*
-    =========================================================
-    SELECT PESQUISÁVEL
-    =========================================================
-    */
-
     .searchable-select-wrapper {
         position: relative;
         width: 100%;
     }
 
-
     .searchable-select-input-wrapper {
         position: relative;
     }
 
-
     .searchable-select-input {
         width: 100%;
         min-height: 46px;
-
         padding: 10px 42px 10px 14px;
 
         border: 1px solid var(--bs-border-color);
@@ -51,16 +48,14 @@ Selecione o aluno e o livro para registrar um novo empréstimo.
             box-shadow 0.15s ease-in-out;
     }
 
-
     .searchable-select-input:focus {
         outline: none;
-
         border-color: #86b7fe;
 
         box-shadow:
-            0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+            0 0 0 0.25rem
+            rgba(13, 110, 253, 0.25);
     }
-
 
     .searchable-select-icon {
         position: absolute;
@@ -77,7 +72,6 @@ Selecione o aluno e o livro para registrar um novo empréstimo.
         transition: transform 0.2s ease;
     }
 
-
     .searchable-select-wrapper.open
     .searchable-select-icon {
 
@@ -86,15 +80,7 @@ Selecione o aluno e o livro para registrar um novo empréstimo.
             rotate(180deg);
     }
 
-
-    /*
-    =========================================================
-    DROPDOWN
-    =========================================================
-    */
-
     .searchable-select-dropdown {
-
         display: none;
 
         position: absolute;
@@ -106,35 +92,24 @@ Selecione o aluno e o livro para registrar um novo empréstimo.
         z-index: 1050;
 
         max-height: 280px;
-
         overflow-y: auto;
 
         border: 1px solid var(--bs-border-color);
-
         border-radius: 8px;
 
         background-color: var(--bs-body-bg);
 
         box-shadow:
-            0 8px 24px rgba(0, 0, 0, 0.15);
+            0 8px 24px
+            rgba(0, 0, 0, 0.15);
     }
-
 
     .searchable-select-wrapper.open
     .searchable-select-dropdown {
-
         display: block;
     }
 
-
-    /*
-    =========================================================
-    OPÇÕES
-    =========================================================
-    */
-
     .searchable-select-option {
-
         padding: 11px 14px;
 
         cursor: pointer;
@@ -142,17 +117,13 @@ Selecione o aluno e o livro para registrar um novo empréstimo.
         color: var(--bs-body-color);
 
         border-bottom:
-            1px solid var(--bs-border-color-translucent);
-
-        transition:
-            background-color 0.1s ease;
+            1px solid
+            var(--bs-border-color-translucent);
     }
-
 
     .searchable-select-option:last-child {
         border-bottom: none;
     }
-
 
     .searchable-select-option:hover,
     .searchable-select-option.active {
@@ -161,23 +132,12 @@ Selecione o aluno e o livro para registrar um novo empréstimo.
             var(--bs-secondary-bg);
     }
 
-
     .searchable-select-option.selected {
-
         font-weight: 600;
-
         color: var(--bs-primary);
     }
 
-
-    /*
-    =========================================================
-    SEM RESULTADOS
-    =========================================================
-    */
-
     .searchable-select-empty {
-
         display: none;
 
         padding: 14px;
@@ -189,15 +149,7 @@ Selecione o aluno e o livro para registrar um novo empréstimo.
         font-size: 0.9rem;
     }
 
-
-    /*
-    =========================================================
-    SELECT ORIGINAL DO DJANGO
-    =========================================================
-    */
-
     .django-original-select {
-
         position: absolute !important;
 
         width: 1px !important;
@@ -215,41 +167,23 @@ Selecione o aluno e o livro para registrar um novo empréstimo.
         border: 0 !important;
     }
 
-
-    /*
-    =========================================================
-    CARD
-    =========================================================
-    */
-
     .loan-form-card {
-
         max-width: 900px;
-
         margin: 0 auto;
     }
 
-
     .loan-form-card .card-body {
-
         padding: 28px;
     }
 
-
     .form-label {
-
         font-weight: 600;
-
         margin-bottom: 8px;
     }
 
-
     .form-help {
-
         color: var(--bs-secondary-color);
-
         font-size: 0.85rem;
-
         margin-top: 6px;
     }
 
@@ -268,19 +202,12 @@ Selecione o aluno e o livro para registrar um novo empréstimo.
 
             {% csrf_token %}
 
-
-            <!-- ERROS GERAIS -->
-
             {% if form.non_field_errors %}
 
                 <div class="alert alert-danger">
 
                     {% for error in form.non_field_errors %}
-
-                        <div>
-                            {{ error }}
-                        </div>
-
+                        <div>{{ error }}</div>
                     {% endfor %}
 
                 </div>
@@ -288,10 +215,7 @@ Selecione o aluno e o livro para registrar um novo empréstimo.
             {% endif %}
 
 
-
-            <!-- =====================================================
-                 ALUNO
-                 ===================================================== -->
+            <!-- ALUNO -->
 
             <div class="mb-4">
 
@@ -302,47 +226,28 @@ Selecione o aluno e o livro para registrar um novo empréstimo.
                     Aluno
                 </label>
 
-
-                <!--
-                O Django continua gerando o SELECT verdadeiro.
-
-                O JavaScript vai escondê-lo visualmente e criar
-                o campo pesquisável.
-                -->
-
                 {{ form.aluno }}
-
 
                 {% if form.aluno.errors %}
 
                     <div class="text-danger small mt-2">
 
                         {% for error in form.aluno.errors %}
-
-                            <div>
-                                {{ error }}
-                            </div>
-
+                            <div>{{ error }}</div>
                         {% endfor %}
 
                     </div>
 
                 {% endif %}
 
-
                 <div class="form-help">
-
                     Pesquise pelo nome ou matrícula do aluno.
-
                 </div>
 
             </div>
 
 
-
-            <!-- =====================================================
-                 LIVRO
-                 ===================================================== -->
+            <!-- LIVRO -->
 
             <div class="mb-4">
 
@@ -353,40 +258,28 @@ Selecione o aluno e o livro para registrar um novo empréstimo.
                     Livro
                 </label>
 
-
                 {{ form.livro }}
-
 
                 {% if form.livro.errors %}
 
                     <div class="text-danger small mt-2">
 
                         {% for error in form.livro.errors %}
-
-                            <div>
-                                {{ error }}
-                            </div>
-
+                            <div>{{ error }}</div>
                         {% endfor %}
 
                     </div>
 
                 {% endif %}
 
-
                 <div class="form-help">
-
                     Pesquise pelo título ou autor do livro.
-
                 </div>
 
             </div>
 
 
-
-            <!-- =====================================================
-                 DATA PREVISTA
-                 ===================================================== -->
+            <!-- DATA -->
 
             <div class="mb-4">
 
@@ -397,33 +290,20 @@ Selecione o aluno e o livro para registrar um novo empréstimo.
                     Data prevista para devolução
                 </label>
 
-
                 {{ form.data_prevista }}
 
-
-                {% if form.data_prevista.errors %}
+                {% for error in form.data_prevista.errors %}
 
                     <div class="text-danger small mt-2">
-
-                        {% for error in form.data_prevista.errors %}
-
-                            <div>
-                                {{ error }}
-                            </div>
-
-                        {% endfor %}
-
+                        {{ error }}
                     </div>
 
-                {% endif %}
+                {% endfor %}
 
             </div>
 
 
-
-            <!-- =====================================================
-                 OBSERVAÇÕES
-                 ===================================================== -->
+            <!-- OBSERVAÇÕES -->
 
             <div class="mb-4">
 
@@ -434,33 +314,18 @@ Selecione o aluno e o livro para registrar um novo empréstimo.
                     Observações
                 </label>
 
-
                 {{ form.observacoes }}
 
-
-                {% if form.observacoes.errors %}
+                {% for error in form.observacoes.errors %}
 
                     <div class="text-danger small mt-2">
-
-                        {% for error in form.observacoes.errors %}
-
-                            <div>
-                                {{ error }}
-                            </div>
-
-                        {% endfor %}
-
+                        {{ error }}
                     </div>
 
-                {% endif %}
+                {% endfor %}
 
             </div>
 
-
-
-            <!-- =====================================================
-                 BOTÕES
-                 ===================================================== -->
 
             <div class="d-flex gap-2 flex-wrap">
 
@@ -468,21 +333,15 @@ Selecione o aluno e o livro para registrar um novo empréstimo.
                     type="submit"
                     class="btn btn-primary"
                 >
-
                     <i class="bi bi-check-lg"></i>
-
                     Registrar empréstimo
-
                 </button>
-
 
                 <a
                     href="{% url 'emprestimos:lista' %}"
                     class="btn btn-outline-secondary"
                 >
-
                     Cancelar
-
                 </a>
 
             </div>
@@ -496,600 +355,337 @@ Selecione o aluno e o livro para registrar um novo empréstimo.
 {% endblock %}
 
 
-
 {% block extra_js %}
 
 <script>
 
-document.addEventListener(
-    "DOMContentLoaded",
-    function () {
+document.addEventListener("DOMContentLoaded", function () {
 
-        /*
-        ==========================================================
-        FUNÇÃO PARA TRANSFORMAR SELECT EM SELECT PESQUISÁVEL
-        ==========================================================
-        */
+    function transformarEmSelectPesquisavel(
+        selectId,
+        placeholder,
+        mensagemSemResultado
+    ) {
 
-        function transformarEmSelectPesquisavel(
-            selectId,
-            placeholder,
-            mensagemSemResultado
-        ) {
+        const select = document.getElementById(selectId);
 
-            const select =
-                document.getElementById(selectId);
+        if (!select) {
+            console.error("Select não encontrado:", selectId);
+            return;
+        }
 
+        const wrapper = document.createElement("div");
+        wrapper.className = "searchable-select-wrapper";
 
-            /*
-            Se o select não existir, mostramos o erro
-            no console para facilitar diagnóstico.
-            */
+        const inputWrapper = document.createElement("div");
+        inputWrapper.className = "searchable-select-input-wrapper";
 
-            if (!select) {
+        const input = document.createElement("input");
 
-                console.error(
-                    "Select não encontrado:",
-                    selectId
-                );
+        input.type = "text";
+        input.className = "searchable-select-input";
+        input.placeholder = placeholder;
+        input.autocomplete = "off";
 
-                return;
-            }
+        const icon = document.createElement("i");
 
+        icon.className =
+            "bi bi-chevron-down searchable-select-icon";
 
-            console.log(
-                "Criando campo pesquisável:",
-                selectId
-            );
+        const dropdown = document.createElement("div");
 
+        dropdown.className =
+            "searchable-select-dropdown";
 
-            /*
-            ======================================================
-            CRIA O CONTAINER
-            ======================================================
-            */
+        const empty = document.createElement("div");
 
-            const wrapper =
-                document.createElement("div");
+        empty.className =
+            "searchable-select-empty";
 
+        empty.textContent =
+            mensagemSemResultado;
 
-            wrapper.className =
-                "searchable-select-wrapper";
+        dropdown.appendChild(empty);
 
+        select.parentNode.insertBefore(
+            wrapper,
+            select
+        );
 
-            /*
-            ======================================================
-            CRIA ÁREA DO INPUT
-            ======================================================
-            */
+        wrapper.appendChild(inputWrapper);
 
-            const inputWrapper =
-                document.createElement("div");
+        inputWrapper.appendChild(input);
+        inputWrapper.appendChild(icon);
 
+        wrapper.appendChild(dropdown);
+        wrapper.appendChild(select);
 
-            inputWrapper.className =
-                "searchable-select-input-wrapper";
+        select.classList.add(
+            "django-original-select"
+        );
 
+        const items = [];
 
-            /*
-            ======================================================
-            CRIA INPUT DE PESQUISA
-            ======================================================
-            */
+        Array.from(select.options)
+            .forEach(function (option) {
 
-            const input =
-                document.createElement("input");
+                if (!option.value) {
+                    return;
+                }
 
+                const item =
+                    document.createElement("div");
 
-            input.type = "text";
+                item.className =
+                    "searchable-select-option";
 
-            input.className =
-                "searchable-select-input";
+                item.textContent =
+                    option.textContent.trim();
 
+                item.dataset.value =
+                    option.value;
 
-            input.placeholder =
-                placeholder;
+                item.dataset.search =
+                    removerAcentos(
+                        option.textContent
+                            .trim()
+                            .toLowerCase()
+                    );
 
+                if (option.selected) {
 
-            input.autocomplete = "off";
+                    item.classList.add(
+                        "selected"
+                    );
 
-
-            /*
-            ======================================================
-            ÍCONE
-            ======================================================
-            */
-
-            const icon =
-                document.createElement("i");
-
-
-            icon.className =
-                "bi bi-chevron-down searchable-select-icon";
-
-
-            /*
-            ======================================================
-            DROPDOWN
-            ======================================================
-            */
-
-            const dropdown =
-                document.createElement("div");
-
-
-            dropdown.className =
-                "searchable-select-dropdown";
-
-
-            /*
-            ======================================================
-            SEM RESULTADO
-            ======================================================
-            */
-
-            const empty =
-                document.createElement("div");
-
-
-            empty.className =
-                "searchable-select-empty";
-
-
-            empty.textContent =
-                mensagemSemResultado;
-
-
-            dropdown.appendChild(empty);
-
-
-            /*
-            ======================================================
-            INSERE NA PÁGINA
-            ======================================================
-            */
-
-            select.parentNode.insertBefore(
-                wrapper,
-                select
-            );
-
-
-            wrapper.appendChild(
-                inputWrapper
-            );
-
-
-            inputWrapper.appendChild(
-                input
-            );
-
-
-            inputWrapper.appendChild(
-                icon
-            );
-
-
-            wrapper.appendChild(
-                dropdown
-            );
-
-
-            /*
-            Move o SELECT real para dentro do wrapper.
-            */
-
-            wrapper.appendChild(
-                select
-            );
-
-
-            /*
-            Esconde visualmente o select original,
-            mas ele continua existindo e será enviado
-            pelo formulário.
-            */
-
-            select.classList.add(
-                "django-original-select"
-            );
-
-
-            /*
-            ======================================================
-            CRIA OPÇÕES A PARTIR DO SELECT DO DJANGO
-            ======================================================
-            */
-
-            const items = [];
-
-
-            Array.from(select.options)
-                .forEach(function (option) {
-
-
-                    /*
-                    Ignora a opção vazia
-                    "Selecione um aluno/livro".
-                    */
-
-                    if (!option.value) {
-
-                        return;
-
-                    }
-
-
-                    const item =
-                        document.createElement("div");
-
-
-                    item.className =
-                        "searchable-select-option";
-
-
-                    item.textContent =
+                    input.value =
                         option.textContent.trim();
+                }
 
+                item.addEventListener(
+                    "click",
+                    function () {
 
-                    item.dataset.value =
-                        option.value;
+                        select.value =
+                            item.dataset.value;
 
+                        input.value =
+                            item.textContent;
 
-                    item.dataset.search =
-                        removerAcentos(
-                            option.textContent
-                                .trim()
-                                .toLowerCase()
+                        items.forEach(
+                            function (outroItem) {
+
+                                outroItem.classList.remove(
+                                    "selected"
+                                );
+
+                            }
                         );
-
-
-                    /*
-                    Se o formulário voltou com erro,
-                    recuperamos o valor escolhido.
-                    */
-
-                    if (option.selected) {
 
                         item.classList.add(
                             "selected"
                         );
 
+                        wrapper.classList.remove(
+                            "open"
+                        );
 
-                        input.value =
-                            option.textContent.trim();
+                        select.dispatchEvent(
+                            new Event(
+                                "change",
+                                {
+                                    bubbles: true
+                                }
+                            )
+                        );
 
                     }
+                );
+
+                dropdown.insertBefore(
+                    item,
+                    empty
+                );
+
+                items.push(item);
+
+            });
 
 
-                    /*
-                    =================================================
-                    CLIQUE NA OPÇÃO
-                    =================================================
-                    */
+        input.addEventListener(
+            "focus",
+            function () {
 
-                    item.addEventListener(
-                        "click",
-                        function () {
+                fecharTodos(wrapper);
 
+                wrapper.classList.add(
+                    "open"
+                );
 
-                            select.value =
-                                item.dataset.value;
+                filtrar("");
 
-
-                            input.value =
-                                item.textContent;
+            }
+        );
 
 
-                            items.forEach(
-                                function (outroItem) {
+        input.addEventListener(
+            "click",
+            function () {
 
-                                    outroItem
-                                        .classList
-                                        .remove(
-                                            "selected"
-                                        );
+                wrapper.classList.add(
+                    "open"
+                );
 
-                                }
-                            );
-
-
-                            item.classList.add(
-                                "selected"
-                            );
+            }
+        );
 
 
-                            wrapper
-                                .classList
-                                .remove(
-                                    "open"
-                                );
+        input.addEventListener(
+            "input",
+            function () {
 
-
-                            /*
-                            Dispara evento change no
-                            select verdadeiro.
-                            */
-
-                            select.dispatchEvent(
-                                new Event(
-                                    "change",
-                                    {
-                                        bubbles: true
-                                    }
-                                )
-                            );
-
-                        }
-                    );
-
-
-                    dropdown.insertBefore(
-                        item,
-                        empty
-                    );
-
-
-                    items.push(item);
-
-                });
-
-
-            /*
-            ======================================================
-            ABRIR AO CLICAR
-            ======================================================
-            */
-
-            input.addEventListener(
-                "focus",
-                function () {
-
-                    fecharTodos(
-                        wrapper
-                    );
-
-
-                    wrapper.classList.add(
-                        "open"
-                    );
-
-
-                    filtrar("");
-
-                }
-            );
-
-
-            input.addEventListener(
-                "click",
-                function () {
-
-                    wrapper.classList.add(
-                        "open"
-                    );
-
-                }
-            );
-
-
-            /*
-            ======================================================
-            PESQUISA ENQUANTO DIGITA
-            ======================================================
-            */
-
-            input.addEventListener(
-                "input",
-                function () {
-
-
-                    /*
-                    Quando começa a digitar,
-                    removemos temporariamente a seleção.
-                    */
-
-                    select.value = "";
-
-
-                    items.forEach(
-                        function (item) {
-
-                            item.classList.remove(
-                                "selected"
-                            );
-
-                        }
-                    );
-
-
-                    filtrar(
-                        input.value
-                    );
-
-
-                    wrapper.classList.add(
-                        "open"
-                    );
-
-                }
-            );
-
-
-            /*
-            ======================================================
-            FILTRAGEM
-            ======================================================
-            */
-
-            function filtrar(texto) {
-
-
-                const pesquisa =
-                    removerAcentos(
-                        texto
-                            .trim()
-                            .toLowerCase()
-                    );
-
-
-                let encontrados = 0;
-
+                select.value = "";
 
                 items.forEach(
                     function (item) {
 
-
-                        if (
-                            item.dataset.search.includes(
-                                pesquisa
-                            )
-                        ) {
-
-                            item.style.display =
-                                "block";
-
-
-                            encontrados++;
-
-                        } else {
-
-                            item.style.display =
-                                "none";
-
-                        }
+                        item.classList.remove(
+                            "selected"
+                        );
 
                     }
                 );
 
+                filtrar(input.value);
 
-                empty.style.display =
-                    encontrados === 0
-                        ? "block"
-                        : "none";
-
-            }
-
-        }
-
-
-        /*
-        ==========================================================
-        REMOVE ACENTOS
-        ==========================================================
-        */
-
-        function removerAcentos(texto) {
-
-            return texto
-                .normalize("NFD")
-                .replace(
-                    /[\u0300-\u036f]/g,
-                    ""
+                wrapper.classList.add(
+                    "open"
                 );
 
+            }
+        );
+
+
+        function filtrar(texto) {
+
+            const pesquisa =
+                removerAcentos(
+                    texto
+                        .trim()
+                        .toLowerCase()
+                );
+
+            let encontrados = 0;
+
+            items.forEach(
+                function (item) {
+
+                    if (
+                        item.dataset.search.includes(
+                            pesquisa
+                        )
+                    ) {
+
+                        item.style.display =
+                            "block";
+
+                        encontrados++;
+
+                    } else {
+
+                        item.style.display =
+                            "none";
+
+                    }
+
+                }
+            );
+
+            empty.style.display =
+                encontrados === 0
+                    ? "block"
+                    : "none";
+
         }
 
+    }
 
-        /*
-        ==========================================================
-        FECHA OUTROS DROPDOWNS
-        ==========================================================
-        */
 
-        function fecharTodos(exceto) {
+    function removerAcentos(texto) {
+
+        return texto
+            .normalize("NFD")
+            .replace(
+                /[\u0300-\u036f]/g,
+                ""
+            );
+
+    }
+
+
+    function fecharTodos(exceto) {
+
+        document
+            .querySelectorAll(
+                ".searchable-select-wrapper"
+            )
+            .forEach(function (wrapper) {
+
+                if (wrapper !== exceto) {
+
+                    wrapper.classList.remove(
+                        "open"
+                    );
+
+                }
+
+            });
+
+    }
+
+
+    document.addEventListener(
+        "click",
+        function (event) {
 
             document
                 .querySelectorAll(
                     ".searchable-select-wrapper"
                 )
-                .forEach(
-                    function (wrapper) {
+                .forEach(function (wrapper) {
 
-                        if (
-                            wrapper !== exceto
-                        ) {
+                    if (
+                        !wrapper.contains(
+                            event.target
+                        )
+                    ) {
 
-                            wrapper
-                                .classList
-                                .remove(
-                                    "open"
-                                );
-
-                        }
+                        wrapper.classList.remove(
+                            "open"
+                        );
 
                     }
-                );
+
+                });
 
         }
+    );
 
 
-        /*
-        ==========================================================
-        FECHAR CLICANDO FORA
-        ==========================================================
-        */
-
-        document.addEventListener(
-            "click",
-            function (event) {
-
-                document
-                    .querySelectorAll(
-                        ".searchable-select-wrapper"
-                    )
-                    .forEach(
-                        function (wrapper) {
-
-                            if (
-                                !wrapper.contains(
-                                    event.target
-                                )
-                            ) {
-
-                                wrapper
-                                    .classList
-                                    .remove(
-                                        "open"
-                                    );
-
-                            }
-
-                        }
-                    );
-
-            }
-        );
+    transformarEmSelectPesquisavel(
+        "id_aluno",
+        "Digite o nome ou matrícula do aluno...",
+        "Nenhum aluno encontrado."
+    );
 
 
-        /*
-        ==========================================================
-        ATIVA ALUNO
-        ==========================================================
-        */
+    transformarEmSelectPesquisavel(
+        "id_livro",
+        "Digite o título ou autor do livro...",
+        "Nenhum livro encontrado."
+    );
 
-        transformarEmSelectPesquisavel(
-            "id_aluno",
-            "Digite o nome ou matrícula do aluno...",
-            "Nenhum aluno encontrado."
-        );
-
-
-        /*
-        ==========================================================
-        ATIVA LIVRO
-        ==========================================================
-        */
-
-        transformarEmSelectPesquisavel(
-            "id_livro",
-            "Digite o título ou autor do livro...",
-            "Nenhum livro encontrado."
-        );
-
-
-    }
-);
+});
 
 </script>
 

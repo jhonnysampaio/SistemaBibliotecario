@@ -1,5 +1,6 @@
 from django.db import transaction
 from django.template.loader import render_to_string
+from django.utils import timezone
 
 from .envio import enviar_mensagem_por_id
 from .models import Mensagem
@@ -146,6 +147,59 @@ def enfileirar_emprestimo_realizado(*, emprestimo):
                     "Guarde a data de devolução para que outras pessoas "
                     "também possam aproveitar esta leitura."
                 ),
+            ),
+        },
+    )
+    _agendar_envio_imediato(mensagem=mensagem, criada=criada)
+    return mensagem
+
+
+def enfileirar_devolucao_emprestimo(*, emprestimo):
+    aluno = emprestimo.aluno
+    if not aluno.email:
+        return None
+
+    mensagem, criada = Mensagem.objects.get_or_create(
+        chave=(
+            f"emprestimo:{emprestimo.pk}:devolvido:"
+            f"{emprestimo.data_devolucao.isoformat()}"
+        ),
+        defaults={
+            "tipo": Mensagem.Tipo.DEVOLUCAO,
+            "destinatario": aluno.email,
+            "aluno": aluno,
+            "emprestimo": emprestimo,
+            "assunto": "Devolução de livro confirmada",
+            "corpo": (
+                f"Olá, {aluno.nome}. A devolução do livro "
+                f"“{emprestimo.livro.titulo}” foi registrada em "
+                f"{emprestimo.data_devolucao:%d/%m/%Y}."
+            ),
+            "corpo_html": _renderizar_corpo_html(
+                pre_cabecalho="A devolução do livro foi confirmada.",
+                categoria="Devolução registrada",
+                titulo="Livro devolvido com sucesso",
+                nome_aluno=aluno.nome,
+                texto=(
+                    "A devolução abaixo foi registrada no Sistema "
+                    "Bibliotecário."
+                ),
+                detalhes=(
+                    {
+                        "rotulo": "Livro",
+                        "valor": emprestimo.livro.titulo,
+                    },
+                    {
+                        "rotulo": "Devolvido em",
+                        "valor": f"{emprestimo.data_devolucao:%d/%m/%Y}",
+                    },
+                ),
+                destaque_titulo="Obrigado pela devolução",
+                destaque_texto=(
+                    "O exemplar já está sendo preparado para novas "
+                    "leituras."
+                ),
+                tom="sucesso",
             ),
         },
     )
@@ -306,6 +360,58 @@ def enfileirar_reserva_disponivel(*, reserva):
                     "para a próxima pessoa da fila."
                 ),
                 tom="sucesso",
+            ),
+        },
+    )
+    _agendar_envio_imediato(mensagem=mensagem, criada=criada)
+    return mensagem
+
+
+def enfileirar_reserva_criada(*, reserva):
+    aluno = reserva.aluno
+    if not aluno.email:
+        return None
+
+    criada_em = timezone.localtime(reserva.criada_em)
+    mensagem, criada = Mensagem.objects.get_or_create(
+        chave=f"reserva:{reserva.pk}:criada",
+        defaults={
+            "tipo": Mensagem.Tipo.RESERVA_CRIADA,
+            "destinatario": aluno.email,
+            "aluno": aluno,
+            "reserva": reserva,
+            "assunto": "Reserva de livro realizada",
+            "corpo": (
+                f"Olá, {aluno.nome}. A reserva do livro "
+                f"“{reserva.livro.titulo}” foi realizada em "
+                f"{criada_em:%d/%m/%Y %H:%M}. Avisaremos quando o "
+                "exemplar estiver disponível."
+            ),
+            "corpo_html": _renderizar_corpo_html(
+                pre_cabecalho="Sua reserva de livro foi confirmada.",
+                categoria="Reserva realizada",
+                titulo="Você entrou na fila de espera",
+                nome_aluno=aluno.nome,
+                texto=(
+                    "Sua reserva foi registrada. Assim que um exemplar "
+                    "estiver disponível, enviaremos um novo aviso por "
+                    "e-mail."
+                ),
+                detalhes=(
+                    {
+                        "rotulo": "Livro",
+                        "valor": reserva.livro.titulo,
+                    },
+                    {
+                        "rotulo": "Reservado em",
+                        "valor": f"{criada_em:%d/%m/%Y %H:%M}",
+                    },
+                ),
+                destaque_titulo="Acompanhe seu e-mail",
+                destaque_texto=(
+                    "A retirada só deverá ser feita depois que você "
+                    "receber a confirmação de disponibilidade."
+                ),
             ),
         },
     )

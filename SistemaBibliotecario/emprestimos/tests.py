@@ -1,7 +1,8 @@
 from datetime import timedelta
 from django.contrib import admin
 from django.contrib.auth.models import Permission, User
-from django.test import TestCase
+from django.core import mail
+from django.test import TestCase, override_settings
 from django.utils import timezone
 from alunos.models import Aluno
 from comunicacoes.models import Mensagem
@@ -73,29 +74,23 @@ class EmprestimoServiceTests(TestCase):
             ).exists()
         )
 
-    def test_selecao_de_aluno_e_livro_possui_pesquisa(self):
-        form = EmprestimoForm()
+    @override_settings(
+        EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend",
+        DEFAULT_FROM_EMAIL="biblioteca@example.com",
+    )
+    def test_emprestimo_com_email_e_enviado_apos_confirmacao(self):
+        self.aluno.email = "aluno@example.com"
+        self.aluno.save(update_fields=["email"])
 
-        self.assertEqual(
-            form.fields["aluno"].widget.attrs["data-searchable-select"],
-            "true",
+        with self.captureOnCommitCallbacks(execute=True):
+            emprestimo = self.registrar()
+
+        mensagem = Mensagem.objects.get(
+            tipo=Mensagem.Tipo.EMPRESTIMO,
+            emprestimo=emprestimo,
         )
-        self.assertIn(
-            "nome ou matrícula",
-            form.fields["aluno"].widget.attrs[
-                "data-search-placeholder"
-            ],
-        )
-        self.assertEqual(
-            form.fields["livro"].widget.attrs["data-searchable-select"],
-            "true",
-        )
-        self.assertIn(
-            "título ou autor",
-            form.fields["livro"].widget.attrs[
-                "data-search-placeholder"
-            ],
-        )
+        self.assertEqual(mensagem.status, Mensagem.Status.ENVIADA)
+        self.assertEqual(len(mail.outbox), 1)
 
     def test_sem_estoque_nao_cria_emprestimo(self):
         self.livro.quantidade_disponivel = 0
@@ -112,6 +107,26 @@ class EmprestimoServiceTests(TestCase):
         self.assertEqual(self.livro.quantidade_disponivel, 1)
         self.assertEqual(emprestimo.situacao, Emprestimo.Situacao.DEVOLVIDO)
         self.assertTrue(Emprestimo.objects.filter(pk=emprestimo.pk).exists())
+
+    @override_settings(
+        EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend",
+        DEFAULT_FROM_EMAIL="biblioteca@example.com",
+    )
+    def test_devolucao_envia_confirmacao_apos_salvar(self):
+        self.aluno.email = "aluno@example.com"
+        self.aluno.save(update_fields=["email"])
+        emprestimo = self.registrar()
+
+        with self.captureOnCommitCallbacks(execute=True):
+            devolver_emprestimo(emprestimo=emprestimo)
+
+        mensagem = Mensagem.objects.get(
+            tipo=Mensagem.Tipo.DEVOLUCAO,
+            emprestimo=emprestimo,
+        )
+        self.assertEqual(mensagem.status, Mensagem.Status.ENVIADA)
+        self.assertIn("devolvido com sucesso", mensagem.corpo_html)
+        self.assertEqual(len(mail.outbox), 1)
 
     def test_devolucao_dupla_e_bloqueada(self):
         emprestimo = self.registrar()

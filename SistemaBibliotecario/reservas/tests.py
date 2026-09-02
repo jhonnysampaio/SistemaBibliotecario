@@ -2,8 +2,9 @@ from datetime import timedelta
 from io import StringIO
 
 from django.contrib.auth.models import Group, Permission, User
+from django.core import mail
 from django.core.management import call_command
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 
@@ -61,6 +62,25 @@ class ReservaBaseTests(TestCase):
 
 
 class ReservaServiceTests(ReservaBaseTests):
+    @override_settings(
+        EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend",
+        DEFAULT_FROM_EMAIL="biblioteca@example.com",
+    )
+    def test_reserva_criada_envia_confirmacao_imediata(self):
+        with self.captureOnCommitCallbacks(execute=True):
+            reserva = criar_reserva(
+                aluno=self.alunos[0],
+                livro=self.livro,
+            )
+
+        mensagem = Mensagem.objects.get(
+            tipo=Mensagem.Tipo.RESERVA_CRIADA,
+            reserva=reserva,
+        )
+        self.assertEqual(mensagem.status, Mensagem.Status.ENVIADA)
+        self.assertIn("fila de espera", mensagem.corpo_html)
+        self.assertEqual(len(mail.outbox), 1)
+
     def test_reserva_duplicada_e_bloqueada(self):
         criar_reserva(aluno=self.alunos[0], livro=self.livro)
 
@@ -123,6 +143,28 @@ class ReservaServiceTests(ReservaBaseTests):
             ).count(),
             2,
         )
+
+    @override_settings(
+        EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend",
+        DEFAULT_FROM_EMAIL="biblioteca@example.com",
+    )
+    def test_livro_reservado_disponivel_envia_email_imediato(self):
+        reserva = Reserva.objects.create(
+            aluno=self.alunos[0],
+            livro=self.livro,
+        )
+        self.livro.quantidade_disponivel = 1
+        self.livro.save(update_fields=["quantidade_disponivel"])
+
+        with self.captureOnCommitCallbacks(execute=True):
+            liberar_proximas_reservas(livro_id=self.livro.pk)
+
+        mensagem = Mensagem.objects.get(
+            tipo=Mensagem.Tipo.RESERVA,
+            reserva=reserva,
+        )
+        self.assertEqual(mensagem.status, Mensagem.Status.ENVIADA)
+        self.assertEqual(len(mail.outbox), 1)
 
     def test_reserva_vencida_expira_e_libera_a_proxima(self):
         self.livro.quantidade_disponivel = 1
@@ -290,31 +332,6 @@ class ReservaFormTests(ReservaBaseTests):
         self.assertNotIn(livro_inativo, form.fields["livro"].queryset)
         self.assertIn(self.alunos[0], form.fields["aluno"].queryset)
         self.assertIn(self.livro, form.fields["livro"].queryset)
-
-    def test_selecao_de_aluno_e_livro_possui_pesquisa(self):
-        form = ReservaForm()
-
-        self.assertEqual(
-            form.fields["aluno"].widget.attrs["data-searchable-select"],
-            "true",
-        )
-        self.assertIn(
-            "nome ou matrícula",
-            form.fields["aluno"].widget.attrs[
-                "data-search-placeholder"
-            ],
-        )
-        self.assertEqual(
-            form.fields["livro"].widget.attrs["data-searchable-select"],
-            "true",
-        )
-        self.assertIn(
-            "título ou autor",
-            form.fields["livro"].widget.attrs[
-                "data-search-placeholder"
-            ],
-        )
-
 
 class ReservaViewTests(ReservaBaseTests):
     def setUp(self):

@@ -21,11 +21,20 @@ class CategoriaForm(forms.ModelForm):
 
         for field in self.fields.values():
 
-            if isinstance(field.widget, forms.CheckboxInput):
-                field.widget.attrs["class"] = "form-check-input"
+            if isinstance(
+                field.widget,
+                forms.CheckboxInput
+            ):
+
+                field.widget.attrs[
+                    "class"
+                ] = "form-check-input"
 
             else:
-                field.widget.attrs["class"] = "form-control"
+
+                field.widget.attrs[
+                    "class"
+                ] = "form-control"
 
 
 class LivroForm(forms.ModelForm):
@@ -50,78 +59,104 @@ class LivroForm(forms.ModelForm):
 
         widgets = {
 
-            "ano_publicacao": forms.NumberInput(
-                attrs={
-                    "min": 1000,
-                }
-            ),
+            "ano_publicacao":
+                forms.NumberInput(
+                    attrs={
+                        "min": 1000,
+                    }
+                ),
 
-            "quantidade_total": forms.NumberInput(
-                attrs={
-                    "min": 1,
-                }
-            ),
+            "quantidade_total":
+                forms.NumberInput(
+                    attrs={
+                        "min": 1,
+                    }
+                ),
         }
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
 
-        # Categorias em ordem alfabética
-        self.fields["categoria"].queryset = (
+        super().__init__(
+            *args,
+            **kwargs
+        )
+
+        self.fields[
+            "categoria"
+        ].queryset = (
+
             Categoria.objects
             .filter(ativa=True)
             .order_by("nome")
+
         )
 
-        # Texto inicial
-        self.fields["categoria"].empty_label = (
+        self.fields[
+            "categoria"
+        ].empty_label = (
             "Selecione uma categoria"
         )
 
-        # Classes Bootstrap
+
         for field in self.fields.values():
 
-            if isinstance(field.widget, forms.CheckboxInput):
+            if isinstance(
+                field.widget,
+                forms.CheckboxInput
+            ):
 
-                field.widget.attrs["class"] = (
-                    "form-check-input"
-                )
+                field.widget.attrs[
+                    "class"
+                ] = "form-check-input"
 
-            elif isinstance(field.widget, forms.Select):
+            elif isinstance(
+                field.widget,
+                forms.Select
+            ):
 
-                field.widget.attrs["class"] = (
-                    "form-select"
-                )
+                field.widget.attrs[
+                    "class"
+                ] = "form-select"
 
             else:
 
-                field.widget.attrs["class"] = (
-                    "form-control"
-                )
+                field.widget.attrs[
+                    "class"
+                ] = "form-control"
 
-        # Categoria pesquisável
-        self.fields["categoria"].widget.attrs.update(
+
+        self.fields[
+            "categoria"
+        ].widget.attrs.update(
             {
                 "id": "id_categoria",
             }
         )
 
+
     def clean_isbn(self):
 
         return normalizar_isbn(
-            self.cleaned_data["isbn"]
+            self.cleaned_data[
+                "isbn"
+            ]
         )
+
 
     def clean_quantidade_total(self):
 
         novo_total = (
-            self.cleaned_data["quantidade_total"]
+            self.cleaned_data[
+                "quantidade_total"
+            ]
         )
 
         if self.instance.pk:
 
-            original = Livro.objects.get(
-                pk=self.instance.pk
+            original = (
+                Livro.objects.get(
+                    pk=self.instance.pk
+                )
             )
 
             emprestados = (
@@ -129,16 +164,24 @@ class LivroForm(forms.ModelForm):
                 - original.quantidade_disponivel
             )
 
-            if novo_total < emprestados:
+            if (
+                novo_total
+                < emprestados
+            ):
 
                 raise forms.ValidationError(
-                    f"Há {emprestados} exemplar(es) emprestado(s). "
-                    "O total não pode ficar abaixo desse número."
+                    f"Há {emprestados} exemplar(es) "
+                    "emprestado(s). O total não pode "
+                    "ficar abaixo desse número."
                 )
 
         return novo_total
 
-    def save(self, commit=True):
+
+    def save(
+        self,
+        commit=True
+    ):
 
         livro = super().save(
             commit=False

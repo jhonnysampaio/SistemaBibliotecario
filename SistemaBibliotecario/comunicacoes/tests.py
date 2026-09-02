@@ -19,12 +19,15 @@ from .models import Mensagem
 from .services import (
     enfileirar_cadastro_aluno,
     enfileirar_atraso,
+    enfileirar_devolucao_emprestimo,
     enfileirar_emprestimo_realizado,
     enfileirar_pendencia_ano_letivo,
     enfileirar_prazo_emprestimo,
+    enfileirar_reserva_criada,
     enfileirar_reserva_disponivel,
 )
 from .envio import reivindicar_mensagem
+from .agendador import _processo_principal_do_runserver
 
 
 class MensagemPendenciaAnualTests(TestCase):
@@ -286,10 +289,17 @@ class NovosEventosMensagemTests(MensagemAutomaticaBaseTests):
         DEFAULT_FROM_EMAIL="biblioteca@example.com",
     )
     def test_demais_eventos_enviam_email_assim_que_sao_criados(self):
+        self.emprestimo.data_devolucao = timezone.localdate()
         casos = (
             (
                 Mensagem.Tipo.EMPRESTIMO,
                 lambda: enfileirar_emprestimo_realizado(
+                    emprestimo=self.emprestimo
+                ),
+            ),
+            (
+                Mensagem.Tipo.DEVOLUCAO,
+                lambda: enfileirar_devolucao_emprestimo(
                     emprestimo=self.emprestimo
                 ),
             ),
@@ -302,6 +312,10 @@ class NovosEventosMensagemTests(MensagemAutomaticaBaseTests):
             (
                 Mensagem.Tipo.ATRASO,
                 lambda: enfileirar_atraso(emprestimo=self.emprestimo),
+            ),
+            (
+                Mensagem.Tipo.RESERVA_CRIADA,
+                lambda: enfileirar_reserva_criada(reserva=self.reserva),
             ),
             (
                 Mensagem.Tipo.RESERVA,
@@ -322,6 +336,34 @@ class NovosEventosMensagemTests(MensagemAutomaticaBaseTests):
                 self.assertEqual(mensagem.tentativas, 1)
 
         self.assertEqual(len(mail.outbox), len(casos))
+
+
+class AgendadorServidorTests(TestCase):
+    def test_inicia_apenas_no_processo_principal_do_runserver(self):
+        self.assertFalse(
+            _processo_principal_do_runserver(
+                argv=["manage.py", "test"],
+                ambiente={},
+            )
+        )
+        self.assertFalse(
+            _processo_principal_do_runserver(
+                argv=["manage.py", "runserver"],
+                ambiente={},
+            )
+        )
+        self.assertTrue(
+            _processo_principal_do_runserver(
+                argv=["manage.py", "runserver"],
+                ambiente={"RUN_MAIN": "true"},
+            )
+        )
+        self.assertTrue(
+            _processo_principal_do_runserver(
+                argv=["manage.py", "runserver", "--noreload"],
+                ambiente={},
+            )
+        )
 
 
 class GerarMensagensTests(MensagemAutomaticaBaseTests):
@@ -374,6 +416,46 @@ class GerarMensagensTests(MensagemAutomaticaBaseTests):
         )
         self.assertEqual(mensagens.count(), 1)
         self.assertIn(self.livro.titulo, mensagens.get().corpo)
+
+    @override_settings(
+        EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend",
+        DEFAULT_FROM_EMAIL="biblioteca@example.com",
+    )
+    def test_prazo_proximo_e_enviado_na_mesma_sincronizacao(self):
+        hoje = timezone.localdate()
+        self.reserva.delete()
+        Emprestimo.objects.filter(pk=self.emprestimo.pk).update(
+            data_inicio=hoje,
+            data_prevista=hoje + timedelta(days=2),
+            situacao=Emprestimo.Situacao.ATIVO,
+        )
+
+        with self.captureOnCommitCallbacks(execute=True):
+            call_command("gerar_mensagens", stdout=StringIO())
+
+        mensagem = Mensagem.objects.get(
+            tipo=Mensagem.Tipo.PRAZO,
+            emprestimo=self.emprestimo,
+        )
+        self.assertEqual(mensagem.status, Mensagem.Status.ENVIADA)
+        self.assertEqual(len(mail.outbox), 1)
+
+    @override_settings(
+        EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend",
+        DEFAULT_FROM_EMAIL="biblioteca@example.com",
+    )
+    def test_atraso_e_enviado_na_mesma_sincronizacao(self):
+        self.reserva.delete()
+
+        with self.captureOnCommitCallbacks(execute=True):
+            call_command("gerar_mensagens", stdout=StringIO())
+
+        mensagem = Mensagem.objects.get(
+            tipo=Mensagem.Tipo.ATRASO,
+            emprestimo=self.emprestimo,
+        )
+        self.assertEqual(mensagem.status, Mensagem.Status.ENVIADA)
+        self.assertEqual(len(mail.outbox), 1)
 
     def test_aluno_sem_email_nao_gera_atraso_nem_reserva(self):
         self.aluno_atraso.email = ""
