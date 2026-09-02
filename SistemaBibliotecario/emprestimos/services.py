@@ -5,7 +5,10 @@ from django.db import transaction
 from django.db.models import F
 from django.utils import timezone
 
+from comunicacoes.services import enfileirar_emprestimo_realizado
 from livros.models import Livro
+from reservas.models import Reserva
+from reservas.services import liberar_proximas_reservas
 
 from .models import Emprestimo
 
@@ -37,9 +40,30 @@ def registrar_emprestimo(
     ).exists():
         raise RegraEmprestimoError(
             "Este aluno já possui um empréstimo aberto deste livro."
-        )
+    )
 
     livro = Livro.objects.select_for_update().get(pk=livro.pk)
+    reserva_do_aluno = (
+        Reserva.objects.select_for_update()
+        .filter(
+            aluno=aluno,
+            livro=livro,
+            status=Reserva.Status.DISPONIVEL,
+        )
+        .first()
+    )
+    destinadas = Reserva.objects.filter(
+        livro=livro,
+        status=Reserva.Status.DISPONIVEL,
+    ).count()
+    livres = livro.quantidade_disponivel - destinadas
+    if reserva_do_aluno is None and livres <= 0:
+        raise RegraEmprestimoError(
+            "Os exemplares disponíveis estão destinados a reservas."
+        )
+    if livro.quantidade_disponivel <= 0:
+        raise RegraEmprestimoError("Não há exemplar disponível.")
+
     atualizado = Livro.objects.filter(
         pk=livro.pk,
         ativo=True,
@@ -65,6 +89,12 @@ def registrar_emprestimo(
             "Os dados do empréstimo são inválidos."
         ) from error
 
+    if reserva_do_aluno:
+        reserva_do_aluno.status = Reserva.Status.ATENDIDA
+        reserva_do_aluno.save(update_fields=["status", "atualizada_em"])
+
+    enfileirar_emprestimo_realizado(emprestimo=emprestimo)
+    liberar_proximas_reservas(livro_id=livro.pk)
     return emprestimo
 
 
@@ -101,6 +131,7 @@ def devolver_emprestimo(*, emprestimo, data_devolucao=None):
     emprestimo.save(
         update_fields=["situacao", "data_devolucao", "atualizado_em"]
     )
+    liberar_proximas_reservas(livro_id=emprestimo.livro_id)
     return emprestimo
 
 
@@ -113,6 +144,20 @@ def renovar_emprestimo(*, emprestimo, dias=7):
         raise RegraEmprestimoError("Empréstimo atrasado não pode ser renovado.")
     if emprestimo.renovacoes >= 2:
         raise RegraEmprestimoError("Limite de renovações atingido.")
+    if (
+        Reserva.objects.filter(
+            livro_id=emprestimo.livro_id,
+            status__in=(
+                Reserva.Status.AGUARDANDO,
+                Reserva.Status.DISPONIVEL,
+            ),
+        )
+        .exclude(aluno_id=emprestimo.aluno_id)
+        .exists()
+    ):
+        raise RegraEmprestimoError(
+            "O empréstimo não pode ser renovado porque há reserva na fila."
+        )
 
     emprestimo.data_prevista += timedelta(days=dias)
     emprestimo.renovacoes = F("renovacoes") + 1

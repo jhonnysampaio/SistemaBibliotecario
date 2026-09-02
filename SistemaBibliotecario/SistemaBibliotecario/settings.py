@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 
 from pathlib import Path
 import os
+from django.core.exceptions import ImproperlyConfigured
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -55,6 +56,8 @@ INSTALLED_APPS = [
     "livros",
     "core",
     "notificacoes",
+    "comunicacoes.apps.ComunicacoesConfig",
+    "reservas.apps.ReservasConfig",
 ]
 
 MIDDLEWARE = [
@@ -161,3 +164,46 @@ if not DEBUG:
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
     X_FRAME_OPTIONS = "DENY"
+
+def env_bool(nome, padrao="False"):
+    return os.environ.get(nome, padrao).strip().lower() in {
+        "1",
+        "true",
+        "yes",
+        "on",
+    }
+
+EMAIL_BACKEND = os.environ.get(
+    "DJANGO_EMAIL_BACKEND",
+    "django.core.mail.backends.smtp.EmailBackend",
+)
+EMAIL_HOST = os.environ.get(
+    "DJANGO_EMAIL_HOST",
+    "smtp.gmail.com",
+)
+EMAIL_PORT = int(os.environ.get("DJANGO_EMAIL_PORT", "587"))
+EMAIL_HOST_USER = os.environ.get("DJANGO_EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = os.environ.get(
+    "DJANGO_EMAIL_HOST_PASSWORD",
+    "",
+)
+EMAIL_USE_TLS = env_bool("DJANGO_EMAIL_USE_TLS", "True")
+EMAIL_USE_SSL = env_bool("DJANGO_EMAIL_USE_SSL", "False")
+EMAIL_TIMEOUT = int(os.environ.get("DJANGO_EMAIL_TIMEOUT", "20"))
+AVISO_PRAZO_EMPRESTIMO_DIAS = int(
+    os.environ.get("DJANGO_AVISO_PRAZO_EMPRESTIMO_DIAS", "2")
+)
+DEFAULT_FROM_EMAIL = os.environ.get(
+    "DJANGO_DEFAULT_FROM_EMAIL",
+    EMAIL_HOST_USER or "webmaster@localhost",
+)
+
+if EMAIL_USE_TLS and EMAIL_USE_SSL:
+    raise ImproperlyConfigured(
+        "EMAIL_USE_TLS e EMAIL_USE_SSL não podem estar ativos ao mesmo tempo."
+    )
+
+if AVISO_PRAZO_EMPRESTIMO_DIAS < 0:
+    raise ImproperlyConfigured(
+        "AVISO_PRAZO_EMPRESTIMO_DIAS não pode ser negativo."
+    )

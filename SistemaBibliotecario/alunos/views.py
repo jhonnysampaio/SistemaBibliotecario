@@ -6,8 +6,15 @@ from django.db.models.deletion import ProtectedError
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
-from .forms import AlunoForm
+from comunicacoes.services import (
+    enfileirar_cadastro_aluno,
+    enfileirar_pendencia_ano_letivo,
+)
+from emprestimos.models import Emprestimo
+
+from .forms import AlunoForm, FechamentoAnoLetivoForm
 from .models import Aluno
+from .services_ano_letivo import fechar_ano_letivo
 
 
 @login_required
@@ -61,6 +68,7 @@ def criar(request):
 
     if request.method == "POST" and form.is_valid():
         aluno = form.save()
+        enfileirar_cadastro_aluno(aluno=aluno)
         messages.success(request, "Aluno cadastrado.")
         return redirect("alunos:detalhe", pk=aluno.pk)
 
@@ -105,3 +113,60 @@ def excluir(request, pk):
         )
 
     return redirect("alunos:lista")
+
+
+@login_required
+@permission_required("alunos.change_aluno", raise_exception=True)
+def fechamento_ano_letivo(request):
+    pendencias = (
+        Emprestimo.objects.exclude(situacao=Emprestimo.Situacao.DEVOLVIDO)
+        .select_related("aluno", "livro")
+        .order_by("aluno__nome", "data_prevista")
+    )
+    form = FechamentoAnoLetivoForm(request.POST or None)
+
+    if request.method == "POST" and form.is_valid():
+        resultado = fechar_ano_letivo(
+            ano_destino=form.cleaned_data["ano_destino"],
+            usuario=request.user,
+        )
+        messages.success(
+            request,
+            f"{len(resultado.atualizados)} aluno(s) atualizado(s).",
+        )
+        return redirect("alunos:fechamento_ano_letivo")
+
+    return render(
+        request,
+        "alunos/fechamento_ano_letivo.html",
+        {"form": form, "pendencias": pendencias},
+    )
+
+
+@login_required
+@require_POST
+@permission_required(
+    ("emprestimos.view_emprestimo", "alunos.change_aluno"),
+    raise_exception=True,
+)
+def solicitar_devolucao(request, pk):
+    emprestimo = get_object_or_404(
+        Emprestimo.objects.exclude(
+            situacao=Emprestimo.Situacao.DEVOLVIDO
+        ).select_related("aluno", "livro"),
+        pk=pk,
+    )
+    mensagem = enfileirar_pendencia_ano_letivo(
+        emprestimo=emprestimo
+    )
+    if mensagem is None:
+        messages.error(
+            request,
+            "O aluno não possui e-mail cadastrado.",
+        )
+    else:
+        messages.success(
+            request,
+            "Solicitação adicionada à fila de envio.",
+        )
+    return redirect("alunos:fechamento_ano_letivo")

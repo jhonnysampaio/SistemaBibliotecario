@@ -1,4 +1,5 @@
 from django import forms
+from django.utils import timezone
 
 from .models import Aluno
 from .validators import somente_digitos
@@ -47,3 +48,22 @@ class AlunoForm(forms.ModelForm):
 
     def clean_cpf(self):
         return somente_digitos(self.cleaned_data["cpf"])
+
+
+class FechamentoAnoLetivoForm(forms.Form):
+    ano_destino = forms.IntegerField(
+        label="Ano letivo de destino",
+        min_value=2000,
+        max_value=2100,
+        initial=lambda: timezone.localdate().year + 1,
+        widget=forms.NumberInput(
+            attrs={"class": "form-control"}
+        ),
+    )
+    confirmar = forms.BooleanField(
+        label="Confirmo o fechamento do ano letivo",
+        required=True,
+        widget=forms.CheckboxInput(
+            attrs={"class": "form-check-input"}
+        ),
+    )
