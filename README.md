@@ -2,7 +2,8 @@
 
 Sistema de gestão de biblioteca escolar desenvolvido com Django. Inclui
 cadastros, circulação, controle de estoque, perfis de acesso, dashboard,
-pesquisa global, alertas internos e verificações de integridade.
+pesquisa global, alertas internos, reservas, notificações automáticas por
+e-mail e verificações de integridade.
 
 ## Requisitos
 
@@ -84,15 +85,25 @@ integridade confirmada, nenhuma nova migração detectada e testes aprovados.
 
 ## Rotina operacional
 
-Execute periodicamente o comando abaixo (por exemplo, pelo Agendador de
-Tarefas do Windows) para atualizar atrasos e criar alertas sem duplicá-los:
+Execute periodicamente os comandos abaixo (por exemplo, pelo Agendador de
+Tarefas do Windows) para atualizar alertas, criar mensagens sem duplicá-las e
+enviar a caixa de saída:
 
 ```powershell
 python manage.py sincronizar_alertas
+python manage.py expirar_reservas
+python manage.py gerar_mensagens
+python manage.py enviar_mensagens --limite 50
 ```
 
-O sistema usa apenas alertas internos; esse comando não envia e-mail, SMS ou
-mensagens para serviços externos.
+O sistema gera e-mails para cadastro de aluno, realização de empréstimo,
+proximidade do prazo de devolução, atraso e disponibilidade de reserva. Por
+padrão, o lembrete de prazo é criado quando faltam até dois dias. Esse período
+pode ser alterado pela variável `DJANGO_AVISO_PRAZO_EMPRESTIMO_DIAS`.
+
+As credenciais SMTP devem ser fornecidas pelas variáveis de ambiente
+`DJANGO_EMAIL_HOST_USER`, `DJANGO_EMAIL_HOST_PASSWORD` e demais configurações
+`DJANGO_EMAIL_*`. Nunca grave a senha de aplicativo no código ou no Git.
 
 O banco `db.sqlite3`, o ambiente virtual e os caches do Python são arquivos
 locais e não devem ser enviados ao Git.
