@@ -7,33 +7,46 @@ from .models import Reserva
 
 
 class ReservaForm(forms.ModelForm):
+
     class Meta:
         model = Reserva
-        fields = ("aluno", "livro")
+
+        fields = (
+            "aluno",
+            "livro",
+        )
+
+        widgets = {
+            "aluno": forms.Select(
+                attrs={
+                    "class": "form-select",
+                }
+            ),
+            "livro": forms.Select(
+                attrs={
+                    "class": "form-select",
+                }
+            ),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["aluno"].queryset = Aluno.objects.filter(ativo=True)
-        self.fields["livro"].queryset = Livro.objects.filter(
-            ativo=True
-        ).select_related("categoria")
-        for field in self.fields.values():
-            field.widget.attrs["class"] = "form-select"
-        self.fields["aluno"].widget.attrs.update(
-            {
-                "data-searchable-select": "true",
-                "data-search-placeholder": (
-                    "Pesquisar aluno por nome ou matrícula"
-                ),
-                "data-search-empty": "Nenhum aluno encontrado.",
-            }
+
+        # Lista apenas alunos ativos
+        self.fields["aluno"].queryset = (
+            Aluno.objects
+            .filter(ativo=True)
+            .order_by("nome")
         )
-        self.fields["livro"].widget.attrs.update(
-            {
-                "data-searchable-select": "true",
-                "data-search-placeholder": (
-                    "Pesquisar livro por título ou autor"
-                ),
-                "data-search-empty": "Nenhum livro encontrado.",
-            }
+
+        # Lista apenas livros ativos
+        self.fields["livro"].queryset = (
+            Livro.objects
+            .filter(ativo=True)
+            .select_related("categoria")
+            .order_by("titulo")
         )
+
+        # Textos iniciais dos campos
+        self.fields["aluno"].empty_label = "Selecione um aluno"
+        self.fields["livro"].empty_label = "Selecione um livro"
