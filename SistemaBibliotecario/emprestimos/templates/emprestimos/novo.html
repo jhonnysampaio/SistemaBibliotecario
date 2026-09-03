@@ -35,11 +35,11 @@ Selecione o aluno e o livro para registrar um novo empréstimo.
         min-height: 46px;
         padding: 10px 42px 10px 14px;
 
-        border: 1px solid var(--bs-border-color);
+        border: 1px solid var(--line);
         border-radius: 8px;
 
-        background-color: var(--bs-body-bg);
-        color: var(--bs-body-color);
+        background-color: var(--paper);
+        color: var(--ink);
 
         font-size: 0.95rem;
 
@@ -50,11 +50,8 @@ Selecione o aluno e o livro para registrar um novo empréstimo.
 
     .searchable-select-input:focus {
         outline: none;
-        border-color: #86b7fe;
-
-        box-shadow:
-            0 0 0 0.25rem
-            rgba(13, 110, 253, 0.25);
+        border-color: var(--sage-500);
+        box-shadow: var(--focus-shadow);
     }
 
     .searchable-select-icon {
@@ -67,7 +64,7 @@ Selecione o aluno e o livro para registrar um novo empréstimo.
 
         pointer-events: none;
 
-        color: var(--bs-secondary-color);
+        color: var(--muted);
 
         transition: transform 0.2s ease;
     }
@@ -94,14 +91,12 @@ Selecione o aluno e o livro para registrar um novo empréstimo.
         max-height: 280px;
         overflow-y: auto;
 
-        border: 1px solid var(--bs-border-color);
+        border: 1px solid var(--line);
         border-radius: 8px;
 
-        background-color: var(--bs-body-bg);
+        background-color: var(--paper);
 
-        box-shadow:
-            0 8px 24px
-            rgba(0, 0, 0, 0.15);
+        box-shadow: var(--dropdown-shadow);
     }
 
     .searchable-select-wrapper.open
@@ -114,11 +109,11 @@ Selecione o aluno e o livro para registrar um novo empréstimo.
 
         cursor: pointer;
 
-        color: var(--bs-body-color);
+        color: var(--ink);
 
         border-bottom:
             1px solid
-            var(--bs-border-color-translucent);
+            var(--line);
     }
 
     .searchable-select-option:last-child {
@@ -129,12 +124,12 @@ Selecione o aluno e o livro para registrar um novo empréstimo.
     .searchable-select-option.active {
 
         background-color:
-            var(--bs-secondary-bg);
+            var(--cream-100);
     }
 
     .searchable-select-option.selected {
         font-weight: 600;
-        color: var(--bs-primary);
+        color: var(--accent-text);
     }
 
     .searchable-select-empty {
@@ -144,7 +139,7 @@ Selecione o aluno e o livro para registrar um novo empréstimo.
 
         text-align: center;
 
-        color: var(--bs-secondary-color);
+        color: var(--muted);
 
         font-size: 0.9rem;
     }
@@ -182,7 +177,7 @@ Selecione o aluno e o livro para registrar um novo empréstimo.
     }
 
     .form-help {
-        color: var(--bs-secondary-color);
+        color: var(--muted);
         font-size: 0.85rem;
         margin-top: 6px;
     }
