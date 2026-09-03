@@ -1,1 +1,7 @@
+# Framework web
 Django==6.0.7
+
+# Dependências de execução do Django, fixadas para reproduzir o ambiente testado
+asgiref==3.12.1
+sqlparse==0.5.5
+tzdata==2026.3; sys_platform == "win32"
