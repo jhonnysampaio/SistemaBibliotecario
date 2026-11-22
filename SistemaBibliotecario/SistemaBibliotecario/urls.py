@@ -35,4 +35,5 @@ urlpatterns = [
     path("", include("core.urls")),
     path("notificacoes/", include("notificacoes.urls")),
     path("reservas/", include("reservas.urls")),
+    path("importacao/", include("importacao.urls")),
 ]
