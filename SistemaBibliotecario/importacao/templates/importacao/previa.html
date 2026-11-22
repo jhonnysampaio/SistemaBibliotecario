@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Prévia da importação{% endblock %}
+{% block page_title %}Prévia: {{ importacao.nome_arquivo }}{% endblock %}
+{% block content %}
+<div class="row g-3 mb-3">
+  <div class="col-md-3"><div class="card"><div class="card-body">
+    <div class="text-muted small">Linhas lidas</div>
+    <div class="fs-4">{{ importacao.total_linhas }}</div></div></div></div>
+  <div class="col-md-3"><div class="card"><div class="card-body">
+    <div class="text-muted small">Válidas</div>
+    <div class="fs-4 text-success">{{ importacao.total_validas }}</div></div></div></div>
+  <div class="col-md-3"><div class="card"><div class="card-body">
+    <div class="text-muted small">Com erro</div>
+    <div class="fs-4 text-danger">{{ importacao.total_invalidas }}</div></div></div></div>
+  <div class="col-md-3"><div class="card"><div class="card-body">
+    <div class="text-muted small">Situação</div>
+    <div class="fs-6">{{ importacao.get_status_display }}</div></div></div></div>
+</div>
+
+{% if invalidas %}
+<h2 class="h5">Linhas com erro (corrija a planilha e envie novamente)</h2>
+<table class="table table-sm">
+  <thead><tr><th>Linha</th><th>Registro</th><th>Problemas</th></tr></thead>
+  <tbody>
+  {% for l in invalidas %}
+    <tr><td>{{ l.numero }}</td><td>{{ l.resumo }}</td>
+        <td><ul class="mb-0">{% for e in l.erros %}<li>{{ e }}</li>{% endfor %}</ul></td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+
+{% if validas %}
+<h2 class="h5">Linhas válidas (primeiras 50)</h2>
+<table class="table table-sm">
+  <thead><tr><th>Linha</th><th>Registro</th></tr></thead>
+  <tbody>{% for l in validas %}<tr><td>{{ l.numero }}</td><td>{{ l.resumo }}</td></tr>{% endfor %}</tbody>
+</table>
+{% endif %}
+
+{% if pode_confirmar %}
+<form method="post" action="{% url 'importacao:confirmar' importacao.pk %}">
+  {% csrf_token %}
+  <button class="btn btn-success" type="submit">Confirmar importação de {{ importacao.total_validas }} registro(s)</button>
+  <a class="btn btn-outline-secondary" href="{% url 'importacao:enviar' importacao.tipo %}">Cancelar</a>
+</form>
+{% else %}
+<a class="btn btn-primary" href="{% url 'importacao:enviar' importacao.tipo %}">Enviar outra planilha</a>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Importar {{ config.titulo }}{% endblock %}
+{% block page_title %}Importar {{ config.titulo }}{% endblock %}
+{% block content %}
+<div class="card"><div class="card-body">
+  <p>Formatos aceitos: <strong>.xlsx</strong> (primeira aba) e <strong>.csv</strong>.
+     Limite: {{ limite_mb }} MB e {{ limite_linhas }} linhas.</p>
+  <p><strong>Colunas obrigatórias:</strong> {{ colunas.obrigatorias|join:", " }}<br>
+     <strong>Opcionais:</strong> {{ colunas.opcionais|join:", " }}</p>
+  <p class="small text-muted">Matrícula, CPF, ISBN e etiqueta devem ficar como texto
+     para preservar zeros à esquerda. Use o modelo.</p>
+  <a class="btn btn-outline-secondary mb-3"
+     href="{% url 'importacao:modelo' tipo %}">Baixar modelo de planilha</a>
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="mb-3">
+      {{ form.arquivo.label_tag }}
+      {{ form.arquivo }}
+      {% for erro in form.arquivo.errors %}
+        <div class="text-danger small mt-1">{{ erro }}</div>
+      {% endfor %}
+    </div>
+    <button type="submit" class="btn btn-primary">Ler e validar</button>
+    <a class="btn btn-outline-secondary" href="{% url 'alunos:lista' %}">
+        Cancelar
+    </a>
+  </form>
+</div></div>
+{% endblock %}

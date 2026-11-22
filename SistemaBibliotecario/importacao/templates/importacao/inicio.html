@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Importar planilhas{% endblock %}
+{% block page_title %}Importar planilhas{% endblock %}
+{% block content %}
+<p class="text-muted">
+  Envie uma planilha, confira a prévia e confirme. Nada é gravado antes da confirmação.
+</p>
+<div class="row g-3">
+  {% for tipo, config in tipos.items %}
+  <div class="col-md-6">
+    <div class="card h-100"><div class="card-body">
+      <h5 class="card-title text-capitalize">{{ config.titulo }}</h5>
+      <a class="btn btn-primary" href="{% url 'importacao:enviar' tipo %}">Importar</a>
+      <a class="btn btn-outline-secondary" href="{% url 'importacao:modelo' tipo %}">Baixar modelo</a>
+    </div></div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}
