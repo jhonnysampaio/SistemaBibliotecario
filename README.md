@@ -28,7 +28,7 @@ e-mail.
 
 - Python 3.12 ou superior;
 - Django 6.0.7;
-- SQLite;
+- SQLite na configuração atual (suporte a PostgreSQL ainda não configurado);
 - HTML, CSS e JavaScript;
 - Django Templates e Django ORM;
 - SMTP do Gmail para envio de e-mails.
@@ -99,6 +99,9 @@ cd SistemaBibliotecario
 
 Os comandos `manage.py` das próximas seções devem ser executados dentro da
 pasta interna `SistemaBibliotecario`, onde o arquivo está localizado.
+Os comandos `python manage.py ...` também funcionam no Bash; para configurar
+variáveis de ambiente no Linux/macOS, use os exemplos com `export` na seção
+**Variáveis de ambiente**.
 
 ## Preparação inicial do banco
 
@@ -188,7 +191,7 @@ O retorno `1` indica que o servidor SMTP aceitou uma mensagem para envio.
 
 | Variável | Padrão | Finalidade |
 |---|---|---|
-| `DJANGO_DEBUG` | `True` | Ativa o modo de desenvolvimento |
+| `DJANGO_DEBUG` | `True` | Ativa o modo de desenvolvimento. Só o valor `true` (sem diferenciar maiúsculas) ativa o modo; qualquer outro valor o desativa. |
 | `DJANGO_SECRET_KEY` | Chave somente para desenvolvimento | Assinatura criptográfica do Django |
 | `DJANGO_ALLOWED_HOSTS` | `127.0.0.1,localhost` | Hosts aceitos, separados por vírgula |
 | `DJANGO_CSRF_TRUSTED_ORIGINS` | Vazio | Origens HTTPS confiáveis, separadas por vírgula |
@@ -204,8 +207,20 @@ O retorno `1` indica que o servidor SMTP aceitou uma mensagem para envio.
 | `DJANGO_AVISO_PRAZO_EMPRESTIMO_DIAS` | `2` | Antecedência do aviso de prazo |
 | `DJANGO_EMAIL_AUTOMACAO_NO_SERVIDOR` | `True` | Ativa as rotinas enquanto o servidor estiver ligado |
 
-Valores booleanos aceitam `true`, `false`, `1`, `0`, `yes`, `on`, entre
-outras formas equivalentes reconhecidas pelo projeto.
+Nas demais variáveis booleanas, `1`, `true`, `yes` e `on` ativam a opção;
+outros valores a desativam. Para `DJANGO_DEBUG`, use especificamente `true` ou
+`false`.
+
+No Linux ou macOS, defina as variáveis no terminal Bash com `export`:
+
+```bash
+export DJANGO_EMAIL_HOST_USER="seu-email@gmail.com"
+export DJANGO_EMAIL_HOST_PASSWORD="senha-de-aplicativo-sem-espacos"
+export DJANGO_DEFAULT_FROM_EMAIL="$DJANGO_EMAIL_HOST_USER"
+```
+
+As variáveis do terminal são temporárias. Em produção, configure-as no serviço
+que inicia o Django; não grave senhas no README nem no repositório.
 
 ## Execução
 
@@ -228,14 +243,32 @@ executado.
 Em **Alunos**, **Acervo** ou no menu **Importar planilhas**, é possível cadastrar
 vários registros de uma vez a partir de uma planilha `.xlsx` ou `.csv`.
 
-1. Baixe o modelo, preencha e envie o arquivo.
+1. Baixe o modelo, preencha a aba `dados` e envie o arquivo. Em XLSX, o sistema
+   lê a aba ativa; no modelo, `dados` já é a primeira aba ativa. CSV aceita
+   delimitadores vírgula, ponto e vírgula ou tabulação, com UTF-8 ou codificação
+   antiga do Windows.
 2. Confira a prévia. Linhas com erro bloqueiam a confirmação.
-3. Confirme a importação. O sistema revalida os registros e grava o lote por
-   inteiro; nada é salvo antes da confirmação.
+3. Confirme a importação. O sistema revalida as linhas e grava os cadastros em
+   uma transação; nenhum aluno ou livro é criado antes da confirmação.
+
+Cabeçalhos obrigatórios e opcionais:
+
+| Importação | Obrigatórios | Opcionais |
+|---|---|---|
+| Alunos | `matricula`, `nome`, `serie`, `turma`, `turno`, `cpf` | `telefone`, `email` |
+| Livros | `isbn`, `titulo`, `autor`, `editora`, `categoria`, `cdd`, `local_estante`, `etiqueta`, `quantidade_total` | `subtitulo`, `ano_publicacao` |
+
+Para livros, a categoria precisa existir e estar ativa antes do envio. A prévia
+normalizada é guardada temporariamente no banco por até 2 horas; CPF e telefone
+não são exibidos na tabela da prévia. Após a importação, as linhas são apagadas.
+Quando uma prévia expira, o comando abaixo limpa suas linhas na próxima execução;
+ele também limpa linhas antigas, mas mantém os metadados da importação.
 
 A importação exige as permissões `add_aluno` ou `add_livro`. Arquivos podem ter
 até 2 MB e 2.000 linhas. Para apagar diariamente os dados temporários de prévias
-expiradas, agende `python manage.py limpar_importacoes` no servidor.
+expiradas, agende `python manage.py limpar_importacoes` no servidor. Execute o
+comando no diretório que contém `manage.py`, usando o mesmo ambiente virtual e
+configuração de banco do sistema.
 
 Para iniciar sem o agendador interno de e-mails:
 
@@ -261,7 +294,9 @@ Enquanto o `runserver` estiver ativo e
 `DJANGO_EMAIL_AUTOMACAO_NO_SERVIDOR=True`, as operações imediatas acordam o
 processador da caixa de saída. Os avisos dependentes de datas são sincronizados
 ao iniciar o servidor e na próxima mudança de dia. A expiração de uma reserva
-agenda sua próxima verificação, sem varredura fixa a cada 30 minutos.
+agenda sua próxima verificação, sem varredura fixa a cada 30 minutos. Esse
+agendador interno inicia somente com `runserver`; ele não é iniciado pelo
+servidor WSGI/ASGI de produção.
 
 As mensagens também podem ser processadas manualmente:
 
@@ -275,6 +310,14 @@ Para limitar a quantidade processada em uma execução:
 ```powershell
 python manage.py enviar_mensagens --limite 10
 ```
+
+Em produção, não use `runserver` como agendador. Configure um agendador externo
+(por exemplo, cron ou Agendador de Tarefas do Windows) para executar
+periodicamente `sincronizar_alertas`, `expirar_reservas`, `gerar_mensagens` e
+`enviar_mensagens`; execute `limpar_importacoes` pelo menos uma vez ao dia. O
+projeto ainda não fornece um processo único de tarefas em segundo plano para
+produção. Use o diretório do `manage.py`, o ambiente virtual e as variáveis do
+serviço em cada execução.
 
 ## Outros comandos administrativos
 
@@ -331,6 +374,7 @@ SistemaBibliotecario/
 ├── emprestimos/             # circulação, devoluções e renovações
 ├── reservas/                # fila e disponibilidade de reservas
 ├── comunicacoes/            # caixa de saída e e-mails
+├── importacao/              # importação e prévias temporárias de planilhas
 ├── notificacoes/            # alertas internos
 ├── usuarios/                # autenticação, perfis e permissões
 ├── dashboard/               # indicadores da biblioteca
@@ -355,8 +399,11 @@ publicação real, é necessário:
 6. Executar `python manage.py collectstatic`;
 7. Utilizar um servidor WSGI ou ASGI adequado;
 8. Configurar backups automáticos do banco;
-9. Executar as tarefas temporais em um processo independente;
-10. Considerar PostgreSQL quando houver acessos simultâneos ou maior volume.
+9. Configurar um agendador externo para as tarefas temporais; o agendador
+   interno só inicia com `runserver` e não substitui um worker de produção;
+10. Planejar a migração para PostgreSQL se houver mais acessos simultâneos ou
+    maior volume. A configuração atual usa SQLite; mudar o banco exige
+    configurar o backend e instalar o driver correspondente.
 
 Nunca publique `DJANGO_SECRET_KEY`, senhas de aplicativo, arquivos `.env` ou o
 banco de dados local.
