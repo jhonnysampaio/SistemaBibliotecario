@@ -1,14 +1,18 @@
 # importacao/tests.py
 import io
+from datetime import timedelta
 from django.contrib.auth.models import Permission, User
+from django.core.management import call_command
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from django.urls import reverse
+from django.utils import timezone
 from openpyxl import Workbook
 from alunos.models import Aluno
 from comunicacoes.models import Mensagem
 from importacao.models import ImportacaoPlanilha
 from importacao.services.leitor import ErroLeitura, ler_planilha
+from importacao.services.validators import verificar_cabecalhos
 from livros.models import Categoria, Livro
 
 CABECALHO = "matricula;nome;serie;turma;turno;cpf\n"
@@ -176,3 +180,90 @@ class FluxoLivrosTests(TestCase):
     def test_isbn_invalido_e_quantidade_com_texto(self):
         imp = self.enviar("123;Livro;Autor;Ed;Literatura;869;A1;E-1;tres\n")
         self.assertEqual(imp.total_invalidas, 1)
+
+
+class CabecalhosTests(TestCase):
+    def test_mensagens_de_cabecalho(self):
+        erros = verificar_cabecalhos("alunos", ["matricula", "extra"])
+        self.assertIn("ausentes: nome", erros[0])
+        self.assertIn("não reconhecidas: extra", erros[1])
+
+
+class LimpezaTests(TestCase):
+    def test_comando_expira_previas_vencidas_e_apaga_as_linhas(self):
+        usuario = User.objects.create_user("bib", password="x")
+        vencida = ImportacaoPlanilha.objects.create(
+            usuario=usuario,
+            tipo="alunos",
+            nome_arquivo="a.csv",
+            linhas=[{"numero": 2}],
+            expira_em=timezone.now() - timedelta(hours=1),
+        )
+        em_dia = ImportacaoPlanilha.objects.create(
+            usuario=usuario,
+            tipo="alunos",
+            nome_arquivo="b.csv",
+            linhas=[{"numero": 2}],
+        )
+
+        call_command("limpar_importacoes", stdout=io.StringIO())
+        vencida.refresh_from_db()
+        em_dia.refresh_from_db()
+
+        self.assertEqual(vencida.status, ImportacaoPlanilha.Status.EXPIRADA)
+        self.assertEqual(vencida.linhas, [])
+        self.assertEqual(em_dia.status, ImportacaoPlanilha.Status.VALIDADA)
+        self.assertEqual(em_dia.linhas, [{"numero": 2}])
+
+
+class InterfaceTests(TestCase):
+    def setUp(self):
+        self.usuario = User.objects.create_user("bib", password="x")
+        self.usuario.user_permissions.add(*Permission.objects.filter(
+            codename__in=["view_livro", "add_livro", "view_aluno", "add_aluno"]
+        ))
+        self.client.force_login(self.usuario)
+
+    def test_botao_importar_na_lista_de_livros(self):
+        resposta = self.client.get(reverse("livros:lista"))
+        self.assertContains(
+            resposta, reverse("importacao:enviar", args=["livros"])
+        )
+
+    def test_botao_importar_na_lista_de_alunos(self):
+        resposta = self.client.get(reverse("alunos:lista"))
+        self.assertContains(
+            resposta, reverse("importacao:enviar", args=["alunos"])
+        )
+
+    def test_menu_lateral_tem_link_para_quem_pode_cadastrar(self):
+        resposta = self.client.get(reverse("livros:lista"))
+        self.assertContains(resposta, reverse("importacao:inicio"))
+
+    def test_quem_so_consulta_nao_ve_botao_nem_link(self):
+        leitor = User.objects.create_user("leitor", password="x")
+        leitor.user_permissions.add(Permission.objects.get(codename="view_livro"))
+        self.client.force_login(leitor)
+        resposta = self.client.get(reverse("livros:lista"))
+        self.assertNotContains(resposta, "/importacao/")
+
+    def test_cancelar_volta_para_a_lista_do_tipo(self):
+        resposta = self.client.get(reverse("importacao:enviar", args=["livros"]))
+        self.assertContains(
+            resposta,
+            'data-voltar="%s"' % reverse("livros:lista"),
+        )
+        resposta = self.client.get(reverse("importacao:enviar", args=["alunos"]))
+        self.assertContains(
+            resposta,
+            'data-voltar="%s"' % reverse("alunos:lista"),
+        )
+
+    def test_tela_inicial_lista_os_dois_tipos(self):
+        resposta = self.client.get(reverse("importacao:inicio"))
+        self.assertContains(
+            resposta, reverse("importacao:enviar", args=["alunos"])
+        )
+        self.assertContains(
+            resposta, reverse("importacao:enviar", args=["livros"])
+        )

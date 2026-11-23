@@ -13,6 +13,7 @@ e-mail.
 - Séries 1ª, 2ª e 3ª e turmas A, B, C e Téc;
 - Fechamento do ano letivo, progressão de série e registro do histórico;
 - Cadastro de livros, categorias, ISBN, etiquetas e localização no acervo;
+- Importação de alunos e livros por planilhas XLSX ou CSV, com prévia e validação antes da gravação;
 - Controle das quantidades total e disponível de cada livro;
 - Empréstimos, devoluções, renovações, atrasos e histórico;
 - Fila de reservas, liberação do próximo aluno e expiração de reservas;
@@ -221,6 +222,20 @@ Acesse:
 
 Para encerrar o servidor, pressione `Ctrl+C` no terminal em que ele está sendo
 executado.
+
+## Importação de planilhas
+
+Em **Alunos**, **Acervo** ou no menu **Importar planilhas**, é possível cadastrar
+vários registros de uma vez a partir de uma planilha `.xlsx` ou `.csv`.
+
+1. Baixe o modelo, preencha e envie o arquivo.
+2. Confira a prévia. Linhas com erro bloqueiam a confirmação.
+3. Confirme a importação. O sistema revalida os registros e grava o lote por
+   inteiro; nada é salvo antes da confirmação.
+
+A importação exige as permissões `add_aluno` ou `add_livro`. Arquivos podem ter
+até 2 MB e 2.000 linhas. Para apagar diariamente os dados temporários de prévias
+expiradas, agende `python manage.py limpar_importacoes` no servidor.
 
 Para iniciar sem o agendador interno de e-mails:
 

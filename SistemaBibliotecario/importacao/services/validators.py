@@ -32,13 +32,17 @@ def verificar_cabecalhos(tipo, cabecalhos):
     faltando = [c for c in cfg["obrigatorias"] if c not in cabecalhos]
 
     if faltando:
-        erros.append("Colunas obrigatorias ausentes" + ", ".join(faltando) + ".")
-    
+        erros.append(
+            "Colunas obrigatórias ausentes: " + ", ".join(faltando) + "."
+        )
+
     aceitas = cfg["obrigatorias"] + cfg["opcionais"]
     desconhecidas = [c for c in cabecalhos if c not in aceitas]
 
     if desconhecidas:
-        erros.append("Colunas não recohecidas: " + ", ".join(desconhecidas) + ".")
+        erros.append(
+            "Colunas não reconhecidas: " + ", ".join(desconhecidas) + "."
+        )
     return erros
 
 def _resolver_opcao(valor, opcoes):
@@ -77,7 +81,7 @@ def _preparar_livro_factory():
             dados["categoria"] = pk or ""
         dados["ativo"] = "on"
         return dados, extras
-    
+
     return preparar
 
 def _erros_do_formulario(form):

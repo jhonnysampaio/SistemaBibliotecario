@@ -3,7 +3,7 @@ from django.core.management.base import BaseCommand
 from django.utils import timezone
 from importacao.models import ImportacaoPlanilha
 
-class Comand(BaseCommand):
+class Command(BaseCommand):
     help = "Apaga os dados temporários de prévias expiradas ou antigas."
 
     def handle(self, *args, **options):
@@ -11,7 +11,10 @@ class Comand(BaseCommand):
         expiradas = ImportacaoPlanilha.objects.filter(
             status=ImportacaoPlanilha.Status.VALIDADA, expira_em__lt=agora
         )
-        n = expiradas.update(status=ImportacaoPlanilha.Status.EXPIRADA, linhsa=[])
+        n = expiradas.update(
+            status=ImportacaoPlanilha.Status.EXPIRADA,
+            linhas=[],
+        )
         antigas = ImportacaoPlanilha.objects.filter(
             criado_em__lt=agora - timedelta(days=30)
         ).exclude(
@@ -19,7 +22,6 @@ class Comand(BaseCommand):
         )
         m = antigas.update(linhas=[])
         self.stdout.write(self.style.SUCCESS(
-            "%d previa(s) expirada(s); dados de %d importacao(oes) antiga(s) limpos." % (n, m)
+            "%d prévia(s) expirada(s); dados de %d importação(ões) "
+            "antiga(s) limpos." % (n, m)
         ))
-
-        return super().handle(*args, **options)

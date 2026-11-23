@@ -18,6 +18,13 @@
     {% endif %}
 
     {% if perms.livros.add_livro %}
+        <a
+            class="btn btn-outline-secondary"
+            href="{% url 'importacao:enviar' 'livros' %}"
+        >
+            <i class="bi bi-file-earmark-spreadsheet" aria-hidden="true"></i>
+            Importar planilha
+        </a>
         <a class="btn btn-primary" href="{% url 'livros:criar' %}">
             <i class="bi bi-plus-lg" aria-hidden="true"></i>
             Novo livro

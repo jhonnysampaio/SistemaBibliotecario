@@ -15,19 +15,42 @@ from .services.validators import COLUNAS
 
 # Create your views here.
 TIPOS = {
-    
-    "alunos": {"titulo": "alunos", "permissao": "alunos.add_aluno",
-               "retorno": "alunos:lista", "texto": ["matricula", "cpf", "telefone"]},    
-    "livros": {"titulo": "livros", "permissao": "livros.add_livro",
-               "retorno": "livros:lista", "texto": ["isbn", "etiqueta", "cdd"]},
+
+    "alunos": {
+        "titulo": "alunos",
+        "permissao": "alunos.add_aluno",
+        "retorno": "alunos:lista",
+        "texto": ["matricula", "cpf", "telefone"],
+        "icone": "bi-people",
+        "descricao": "Matrícula, nome, série, turma, turno e CPF de cada aluno.",
+        "dicas": [
+            "Série: 1ª série, 2ª série ou 3ª série.",
+            "Turma: A, B, C ou Téc. Turno: Matutino ou Vespertino.",
+            "CPF: com ou sem pontuação; precisa ser válido e não pode repetir.",
+        ],
+    },
+    "livros": {
+        "titulo": "livros",
+        "permissao": "livros.add_livro",
+        "retorno": "livros:lista",
+        "texto": ["isbn", "etiqueta", "cdd"],
+        "icone": "bi-journal-bookmark",
+        "descricao": "ISBN, título, autor, categoria, localização e quantidade.",
+        "dicas": [
+            "Categoria: precisa já existir e estar ativa (cadastre antes em Acervo, Categorias).",
+            "ISBN: ISBN-10 ou ISBN-13 válido, com ou sem hífens.",
+            "Quantidade: número inteiro, no mínimo 1. A disponibilidade é calculada pelo sistema.",
+            "ISBN e etiqueta não podem repetir.",
+        ],
+    },
 }
 
-def _config(requet, tipo):
+def _config(request, tipo):
     config = TIPOS.get(tipo)
 
     if config is None:
        raise Http404
-    if not requet.user.has_perm(config["permissao"]):
+    if not request.user.has_perm(config["permissao"]):
         raise PermissionDenied
 
     return config
@@ -133,7 +156,7 @@ def confirmar(request, pk):
         onde = "Linha %s: " % erro.numero if erro.numero else ""
         messages.error(request, "Nada foi importado. %s%s" % (onde, "; ".join(erro.erros)))
         return redirect("importacao:previa", pk=pk)
-    
+
     messages.success(
         request, "%d registro(s) importado(s)." % concluida.total_importadas
     )

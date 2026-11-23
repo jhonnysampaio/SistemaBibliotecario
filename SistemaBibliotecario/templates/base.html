@@ -78,6 +78,13 @@
                     <span>Histórico</span>
                 </a>
 
+                {% if perms.alunos.add_aluno or perms.livros.add_livro %}
+                    <a href="{% url 'importacao:inicio' %}">
+                        <i class="bi bi-file-earmark-spreadsheet" aria-hidden="true"></i>
+                        <span>Importar planilhas</span>
+                    </a>
+                {% endif %}
+
                 {% if perms.auth.view_user %}
                     <a href="{% url 'usuarios:lista' %}">
                         <i class="bi bi-person-gear" aria-hidden="true"></i>
