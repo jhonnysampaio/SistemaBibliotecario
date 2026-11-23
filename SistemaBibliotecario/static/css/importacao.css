@@ -1,0 +1,166 @@
+/* Importação de planilhas. Usa as variáveis de cor de base.css (tema claro e escuro). */
+.import-steps {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.5rem;
+    margin: 0 0 1.5rem;
+    padding: 0;
+    list-style: none;
+    counter-reset: etapa;
+}
+
+.import-steps li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--muted);
+    font-size: 0.9rem;
+    font-weight: 600;
+    counter-increment: etapa;
+}
+
+.import-steps li::before {
+    content: counter(etapa);
+    display: inline-grid;
+    place-items: center;
+    width: 1.7rem;
+    height: 1.7rem;
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    background: var(--paper);
+    font-size: 0.8rem;
+}
+
+.import-steps li.is-active {
+    color: var(--accent-text);
+}
+
+.import-steps li.is-active::before {
+    border-color: var(--accent-text);
+    background: var(--accent-text);
+    color: var(--paper);
+}
+
+.import-steps li.is-done::before {
+    content: "\2713";
+    border-color: var(--success-ink);
+    background: var(--success-soft);
+    color: var(--success-ink);
+}
+
+.import-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+}
+
+.import-option {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+}
+
+.import-option h2 {
+    margin: 0;
+    font-size: 1.25rem;
+}
+
+.import-option p {
+    margin: 0;
+    color: var(--muted);
+}
+
+.import-option-icon {
+    display: grid;
+    place-items: center;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 0.8rem;
+    background: var(--info-soft);
+    color: var(--accent-text);
+    font-size: 1.4rem;
+}
+
+.import-option-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: auto;
+}
+
+.import-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin: 0.4rem 0 1.1rem;
+    padding: 0;
+    list-style: none;
+}
+
+.import-chips code {
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    color: var(--info-ink);
+    background: var(--info-soft);
+    font-size: 0.8rem;
+}
+
+.import-chips--optional code {
+    color: var(--neutral-ink);
+    background: var(--neutral-soft);
+}
+
+.import-tips {
+    margin: 0.4rem 0 1.25rem;
+    padding-left: 1.1rem;
+    color: var(--muted);
+}
+
+.import-tips li + li {
+    margin-top: 0.25rem;
+}
+
+.import-metrics {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.import-metric {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    padding: 1rem 1.2rem;
+    border: 1px solid var(--line);
+    border-radius: 1rem;
+    background: var(--paper);
+    box-shadow: var(--shadow);
+}
+
+.import-metric span {
+    color: var(--muted);
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.import-metric strong {
+    color: var(--accent-text);
+    font-family: "Lora", serif;
+    font-size: 1.9rem;
+    line-height: 1.1;
+}
+
+.import-metric--ok strong {
+    color: var(--success-ink);
+}
+
+.import-metric--erro strong {
+    color: var(--danger-ink);
+}
+
+@media (max-width: 767.98px) {
+    .import-metrics {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}

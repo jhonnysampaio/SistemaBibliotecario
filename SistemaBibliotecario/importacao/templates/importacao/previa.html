@@ -1,0 +1,199 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Prévia da importação | Biblioteca{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/importacao.css' %}">
+{% endblock %}
+
+{% block eyebrow %}Importação de {{ importacao.get_tipo_display|lower }}{% endblock %}
+{% block page_title %}Conferir prévia{% endblock %}
+
+{% block page_description %}
+<p class="text-muted mb-0">
+    Arquivo: <strong>{{ importacao.nome_arquivo }}</strong>
+</p>
+{% endblock %}
+
+{% block content %}
+<ol class="import-steps" aria-label="Etapas da importação">
+    <li class="is-done">Enviar a planilha</li>
+    <li class="is-active">Conferir a prévia</li>
+    <li>Confirmar</li>
+</ol>
+
+<div class="import-metrics">
+    <div class="import-metric">
+        <span>Linhas lidas</span>
+        <strong>{{ importacao.total_linhas }}</strong>
+    </div>
+    <div class="import-metric import-metric--ok">
+        <span>Válidas</span>
+        <strong>{{ importacao.total_validas }}</strong>
+    </div>
+    <div class="import-metric import-metric--erro">
+        <span>Com erro</span>
+        <strong>{{ importacao.total_invalidas }}</strong>
+    </div>
+    <div class="import-metric">
+        <span>Situação</span>
+        <div>
+            <span class="badge-status
+                {% if importacao.status == 'falhou' %}badge-atrasado
+                {% elif importacao.status == 'validada' %}badge-ativo
+                {% elif importacao.status == 'concluida' %}badge-ativo
+                {% else %}badge-devolvido{% endif %}">
+                {{ importacao.get_status_display }}
+            </span>
+        </div>
+    </div>
+</div>
+
+{% if importacao.status == 'concluida' %}
+    <div class="alert alert-success" role="alert">
+        Importação concluída.
+    </div>
+{% elif importacao.status == 'falhou' %}
+    <div class="alert alert-danger" role="alert">
+        A confirmação falhou e nada foi gravado. Envie a planilha novamente.
+    </div>
+{% elif importacao.status == 'expirada' or importacao.expirada %}
+    <div class="alert alert-warning" role="alert">
+        A prévia expirou. Envie a planilha novamente.
+    </div>
+{% elif importacao.total_invalidas %}
+    <div class="alert alert-warning" role="alert">
+        Há {{ importacao.total_invalidas }} linha{{ importacao.total_invalidas|pluralize }}
+        com erro. Nada foi gravado. Corrija a planilha e envie novamente.
+    </div>
+{% else %}
+    <div class="alert alert-info" role="alert">
+        Tudo certo. Confira os registros abaixo e confirme a importação.
+    </div>
+{% endif %}
+
+{% if invalidas %}
+    <section class="panel mb-4">
+        <div class="panel-body border-bottom">
+            <h2 class="h5 mb-1">Linhas com erro</h2>
+            <p class="text-muted small mb-0">
+                O número é a linha da planilha (a primeira linha de dados é a 2).
+            </p>
+        </div>
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Linha</th>
+                        <th>Registro</th>
+                        <th>Problemas</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for l in invalidas %}
+                        <tr>
+                            <td>{{ l.numero }}</td>
+                            <td>{{ l.resumo }}</td>
+                            <td>
+                                <ul class="mb-0 ps-3">
+                                    {% for e in l.erros %}
+                                        <li>{{ e }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+{% endif %}
+
+{% if validas %}
+    <section class="panel mb-4">
+        <div class="panel-body border-bottom">
+            <h2 class="h5 mb-1">Linhas válidas</h2>
+            {% if importacao.total_validas > 50 %}
+                <p class="text-muted small mb-0">
+                    Mostrando as 50 primeiras de {{ importacao.total_validas }}.
+                </p>
+            {% endif %}
+        </div>
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Linha</th>
+                        <th>Registro</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for l in validas %}
+                        <tr>
+                            <td>{{ l.numero }}</td>
+                            <td>{{ l.resumo }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+{% endif %}
+
+{% if not invalidas and not validas %}
+    <section class="panel mb-4">
+        <div class="empty-state">
+            <i class="bi bi-shield-lock" aria-hidden="true"></i>
+            <strong>Os detalhes das linhas não estão mais disponíveis.</strong>
+            <p>Eles são apagados depois da importação ou da expiração, por privacidade.</p>
+        </div>
+    </section>
+{% endif %}
+
+{% if pode_confirmar %}
+    <form
+        method="post"
+        action="{% url 'importacao:confirmar' importacao.pk %}"
+        class="panel"
+        data-importacao-form
+    >
+        {% csrf_token %}
+        <div
+            class="panel-body d-flex flex-wrap justify-content-between
+                   align-items-center gap-3"
+        >
+            <p class="mb-0">
+                Serão criados <strong>{{ importacao.total_validas }}</strong>
+                registro{{ importacao.total_validas|pluralize }}.
+                Tudo é gravado de uma vez.
+            </p>
+            <div class="d-flex gap-2">
+                <a class="btn btn-outline-secondary" href="{% url config.retorno %}">
+                    Cancelar
+                </a>
+                <button
+                    class="btn btn-primary"
+                    type="submit"
+                    data-texto-enviando="Importando..."
+                >
+                    Confirmar importação
+                </button>
+            </div>
+        </div>
+    </form>
+{% else %}
+    <div class="d-flex flex-wrap gap-2">
+        <a class="btn btn-primary" href="{% url 'importacao:enviar' importacao.tipo %}">
+            Enviar outra planilha
+        </a>
+        <a class="btn btn-outline-secondary" href="{% url config.retorno %}">
+            Voltar para a lista
+        </a>
+    </div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/importacao.js' %}"></script>
+{% endblock %}

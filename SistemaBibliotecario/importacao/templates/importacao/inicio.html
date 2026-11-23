@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Importar planilhas | Biblioteca{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/importacao.css' %}">
+{% endblock %}
+
+{% block eyebrow %}Cadastros{% endblock %}
+{% block page_title %}Importar planilhas{% endblock %}
+
+{% block page_description %}
+<p class="text-muted mb-0">
+    Preencha uma planilha, confira a prévia e confirme. Nada é gravado antes
+    da confirmação.
+</p>
+{% endblock %}
+
+{% block content %}
+<ol class="import-steps" aria-label="Etapas da importação">
+    <li class="is-active">Enviar a planilha</li>
+    <li>Conferir a prévia</li>
+    <li>Confirmar</li>
+</ol>
+
+<div class="import-options">
+    {% for tipo, config in tipos.items %}
+        <section class="panel panel-body import-option">
+            <span class="import-option-icon" aria-hidden="true">
+                <i class="bi {{ config.icone }}"></i>
+            </span>
+            <h2>{{ config.titulo|capfirst }}</h2>
+            <p>{{ config.descricao }}</p>
+            <div class="import-option-actions">
+                <a
+                    class="btn btn-primary"
+                    href="{% url 'importacao:enviar' tipo %}"
+                >
+                    <i class="bi bi-upload" aria-hidden="true"></i>
+                    Importar
+                </a>
+                <a
+                    class="btn btn-outline-secondary"
+                    href="{% url 'importacao:modelo' tipo %}"
+                >
+                    <i class="bi bi-download" aria-hidden="true"></i>
+                    Baixar modelo
+                </a>
+            </div>
+        </section>
+    {% endfor %}
+</div>
+{% endblock %}

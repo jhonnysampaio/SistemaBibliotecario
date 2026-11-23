@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Importar {{ config.titulo }} | Biblioteca{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/importacao.css' %}">
+{% endblock %}
+
+{% block eyebrow %}Importação{% endblock %}
+{% block page_title %}Importar {{ config.titulo }}{% endblock %}
+
+{% block page_actions %}
+    <a
+        class="btn btn-outline-secondary"
+        href="{% url 'importacao:modelo' tipo %}"
+    >
+        <i class="bi bi-download" aria-hidden="true"></i>
+        Baixar modelo
+    </a>
+{% endblock %}
+
+{% block content %}
+<ol class="import-steps" aria-label="Etapas da importação">
+    <li class="is-active">Enviar a planilha</li>
+    <li>Conferir a prévia</li>
+    <li>Confirmar</li>
+</ol>
+
+<form
+    method="post"
+    enctype="multipart/form-data"
+    class="panel"
+    data-importacao-form
+>
+    {% csrf_token %}
+    <div class="panel-body">
+        <h2 class="h5">Colunas da planilha</h2>
+        <p class="text-muted small mb-0">Obrigatórias</p>
+        <ul class="import-chips">
+            {% for coluna in colunas.obrigatorias %}
+                <li><code>{{ coluna }}</code></li>
+            {% endfor %}
+        </ul>
+        <p class="text-muted small mb-0">Opcionais</p>
+        <ul class="import-chips import-chips--optional">
+            {% for coluna in colunas.opcionais %}
+                <li><code>{{ coluna }}</code></li>
+            {% endfor %}
+        </ul>
+
+        <h2 class="h5">Antes de enviar</h2>
+        <ul class="import-tips">
+            {% for dica in config.dicas %}
+                <li>{{ dica }}</li>
+            {% endfor %}
+            <li>
+                Matrícula, CPF, ISBN e etiqueta devem ficar como texto, para
+                não perder zeros à esquerda. O modelo já vem assim.
+            </li>
+            <li>
+                Formatos aceitos: .xlsx (primeira aba) e .csv. Limite de
+                {{ limite_mb }} MB e {{ limite_linhas }} linhas.
+            </li>
+        </ul>
+
+        <label class="form-label" for="{{ form.arquivo.id_for_label }}">
+            {{ form.arquivo.label }}
+        </label>
+        {{ form.arquivo }}
+        {% for erro in form.arquivo.errors %}
+            <div class="invalid-feedback d-block">{{ erro }}</div>
+        {% endfor %}
+    </div>
+    <div class="panel-body border-top d-flex justify-content-end gap-2">
+        <a
+            id="cancelar-importacao"
+            class="btn btn-outline-secondary"
+            href="{% url config.retorno %}"
+            data-voltar="{% url config.retorno %}"
+        >
+            Cancelar
+        </a>
+        <button
+            class="btn btn-primary"
+            type="submit"
+            data-texto-enviando="Lendo planilha..."
+        >
+            Ler e validar
+        </button>
+    </div>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/importacao.js' %}"></script>
+{% endblock %}
